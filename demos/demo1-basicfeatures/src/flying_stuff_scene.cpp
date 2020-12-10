@@ -5,6 +5,7 @@
 #include <libgba-sprite-engine/sprites/affine_sprite.h>
 #include <libgba-sprite-engine/sprites/sprite_builder.h>
 #include <libgba-sprite-engine/gba/tonc_memmap.h>
+#include <libgba-sprite-engine/gba/tonc_memdef.h>
 #include <libgba-sprite-engine/background/text_stream.h>
 #include "flying_stuff_scene.h"
 #include "kul.h"
@@ -60,7 +61,16 @@ void FlyingStuffScene::load() {
 }
 
 void FlyingStuffScene::tick(u16 keys) {
-    scrollX += 1;
+
+
+ if(keys & KEY_LEFT) {
+     player->moveTo(player->getX() - 1, player->getY());
+     scrollX -= 1;
+}
+ else if(keys & KEY_RIGHT) {
+     player->moveTo(player->getX() + 1, player->getY());
+     scrollX += 1;
+ }
 
     rotation += rotationDiff;
     kulFlying.get()->rotate(rotation);

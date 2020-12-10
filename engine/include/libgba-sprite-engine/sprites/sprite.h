@@ -43,7 +43,6 @@ enum SpriteSize {
 };
 
 class SpriteManager;
-
 class Sprite {
 private:
     void updateVelocity();

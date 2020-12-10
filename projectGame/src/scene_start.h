@@ -10,9 +10,10 @@
 class scene_start : public Scene {
 
 private:
-    std::unique_ptr<Sprite> animation;
+    std::unique_ptr<Sprite> creepermove;
     std::unique_ptr<Sprite> finalFantasyGuy;
-    std::unique_ptr<Sprite> smiley;
+    std::unique_ptr<Sprite> bullet;
+    std::unique_ptr<Background> bg;
     bool pressingAorB = false;
 
 public:
