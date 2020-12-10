@@ -1,0 +1,8 @@
+//
+// Created by Gille on 12/10/2020.
+//
+
+#ifndef GBA_SPRITE_ENGINE_PROJECT_BG1_H
+#define GBA_SPRITE_ENGINE_PROJECT_BG1_H
+
+#endif //GBA_SPRITE_ENGINE_PROJECT_BG1_H
