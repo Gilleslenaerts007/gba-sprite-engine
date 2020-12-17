@@ -10,7 +10,8 @@
 #include <libgba-sprite-engine/gba_engine.h>
 #include <libgba-sprite-engine/effects/fade_out_scene.h>
 #include "scene_start.h"
-//#include "next_scene.h"
+#include "scene_Chapter1.h"
+#include "pixel_menu.h"
 #include "manneke.h"
 #include "bg1.h"
 //#include "sample_sound.h"
@@ -26,7 +27,7 @@ std::vector<Background *> scene_start::backgrounds() {
  * Current sprites on the scene?
  */
 std::vector<Sprite *> scene_start::sprites() {
-    return { finalFantasyGuy.get(), creepermove.get() };
+    return { menu_picker.get() };
 }
 
 /*
@@ -48,29 +49,18 @@ void scene_start::load() {
 
     SpriteBuilder<Sprite> builder;
 
-
-    creepermove = builder
-            .withData(piskelTiles, sizeof(piskelTiles))
-            .withSize(SIZE_32_32)
-            .withVelocity(1, 1)
-            .withLocation(5, 50)
-            .buildPtr();
-
 /*
  * Width x length
  */
-    finalFantasyGuy = builder
+
+    menu_picker = builder
             .withData(piskelTiles, sizeof(piskelTiles))
             .withSize(SIZE_32_32)
             .withLocation(100, 50)
-            .buildPtr();
-    bullet = builder
-            .withData(piskelTiles, sizeof(piskelTiles))
-            .withSize(SIZE_8_8)
-            .withLocation(100, 50)
+            .withinBounds()
             .buildPtr();
 
-    //TextStream::instance().setText("PRESS START", 3, 8);
+    TextStream::instance().setText("PRESS START", 3, 8);
 
     bg = std::unique_ptr<Background>(new Background(2, testmapTiles, sizeof(testmapTiles), testmapMap, sizeof(testmapMap)));
     bg.get()->useMapScreenBlock(16);
@@ -85,47 +75,44 @@ void scene_start::load() {
  * if(!engine->isTransitioning())
  * engine->transitionIntoScene(new FlyingStuffScene(engine), new FadeOutScene(2));
  */
+
 void scene_start::tick(u16 keys) {
-    //TextStream::instance().setText(engine->getTimer()->to_string(), 18, 1);
-    static int x,y, jumpcount = 0;
-    static bool jump = 0;
+
+    static int delay = 0;
     if(pressingAorB && !((keys & KEY_A) || (keys & KEY_B))) {
         //engine->getTimer()->toggle();
         pressingAorB = false;
     }
 
     if(keys & KEY_START) {
-        if(!engine->isTransitioning()) {
-            //engine->enqueueSound(zelda_secret_16K_mono, zelda_secret_16K_mono_bytes);
-
+        if (!engine->isTransitioning()) {
+            //MUSIC?//engine->enqueueSound(zelda_secret_16K_mono, zelda_secret_16K_mono_bytes);
             TextStream::instance() << "entered: starting next scene";
-
-            //engine->transitionIntoScene(new FlyingStuffScene(engine), new FadeOutScene(2));
+            engine->transitionIntoScene(new scene_Chapter1(engine), new FadeOutScene(2));
         }
+    }
+    else if(keys & KEY_UP)
+    {
+        if (menu_picker->getY() >= 40 && delay >= 10)
+        {
+            delay=0;
+            menu_picker->moveTo(menu_picker->getX(), menu_picker->getY() - 10);
+        }
+    }
+    else if(keys & KEY_DOWN)
+    {
+        if (menu_picker->getY() <= 80 && delay >= 10)
+        {
+            delay=0;
+            menu_picker->moveTo(menu_picker->getX(), menu_picker->getY() + 10);
+        }
+    }
 
-    } else if(keys & KEY_LEFT) {
-        finalFantasyGuy->moveTo(finalFantasyGuy->getX() - 1, finalFantasyGuy->getY());
-    } else if(keys & KEY_RIGHT) {
-        finalFantasyGuy->moveTo(finalFantasyGuy->getX() + 1, finalFantasyGuy->getY());
-    } else if(keys & KEY_UP && !jump) {
-        jump = true;
-        finalFantasyGuy->moveTo(finalFantasyGuy->getX(), finalFantasyGuy->getY() - 10);
-    } else if(keys & KEY_DOWN) {
-        finalFantasyGuy->moveTo(finalFantasyGuy->getX(), finalFantasyGuy->getY() + 1);
-    } else if((keys & KEY_A) || (keys & KEY_B)) {
+    else if((keys & KEY_A) || (keys & KEY_B))
+    {
         pressingAorB = true;
     }
 
-    if (jump)
-    {
-        jumpcount++;
-      if (jumpcount >= 25)
-      {
-          jump = false;
-          jumpcount = 0;
-          finalFantasyGuy->moveTo(finalFantasyGuy->getX(), finalFantasyGuy->getY() + 10);
-      }
-
-    }
+    delay++;
 
 }
