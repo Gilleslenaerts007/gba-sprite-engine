@@ -12,7 +12,7 @@
 #include "bg_Chapter1.h"
 
 std::vector<Background *> scene_Chapter1::backgrounds() {
-    return {bg_C1.get()};
+    return {bg_C1.get()};//, bg_C2.get(), bg_C3.get()};
 }
 
 /*
@@ -36,15 +36,34 @@ void scene_Chapter1::load() {
      * Bij de palletten moeten de kleuren in 16bit formaat opgemaakt worden.
      * De tiles en map mogen 32bit opgemaakt/omgezet worden.
      * */
-    foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(playerPal, sizeof(playerPal)));
-    backgroundPalette = std::unique_ptr<BackgroundPaletteManager>(new BackgroundPaletteManager(bgc1mapPal, sizeof(bgc1mapPal)));
 
+    /*
+     * Background handler
+     *  MAPLAYOUT_32X32
+        MAPLAYOUT_32X64
+        MAPLAYOUT_64X32
+        MAPLAYOUT_64X64
+     */
+    REG_DISPCNT = DCNT_MODE0 | DCNT_OBJ | DCNT_OBJ_1D | DCNT_BG0 | DCNT_BG1; //Als dit aanstaat kan bg index al vanaf 0. zoniet van index 1.
+    backgroundPalette = std::unique_ptr<BackgroundPaletteManager>(new BackgroundPaletteManager(bg500Pal, sizeof(bg500Pal)));
+    bg_C1 = std::unique_ptr<Background>(new Background(0, bg500Tiles, sizeof(bg500Tiles), bg500Map, sizeof(bg500Map), MAPLAYOUT_64X64));
+    bg_C1.get()->useMapScreenBlock(16); //data size van tiles dus 16
+
+    /*
+    bg_C2 = std::unique_ptr<Background>(new Background(1, bg1Tiles, sizeof(bg1Tiles), bg1Map, sizeof(bg1Map), MAPLAYOUT_64X64));
+    bg_C2.get()->useMapScreenBlock(16);
+     */
+
+
+    /*
+     * Sprite handler
+     * Width x length
+     */
+    foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(playerPal, sizeof(playerPal)));
     SpriteBuilder<Sprite> builder;
     SpriteBuilder<AffineSprite> affineBuilder;
 
-/*
- * Width x length
- */
+
 
     enemy = affineBuilder
             .withData(playerTiles, sizeof(playerTiles))
@@ -68,9 +87,10 @@ void scene_Chapter1::load() {
     */
 
     //TextStream::instance().setText("PRESS START", 3, 8);
-
-    bg_C1 = std::unique_ptr<Background>(new Background(2, bgc1Tiles, sizeof(bgc1Tiles), bgc1mapMap, sizeof(bgc1mapMap)));
-    bg_C1.get()->useMapScreenBlock(16);
+    /*
+    bg_C3 = std::unique_ptr<Background>(new Background(1, tilesetOpenGameTiles, sizeof(tilesetOpenGameTiles), affinemap, sizeof(affinemap)));
+    bg_C3.get()->useMapScreenBlock(8);
+     */
     //engine->getTimer()->start();
     //engine->enqueueMusic(zelda_music_16K_mono, zelda_music_16K_mono_bytes);
 }

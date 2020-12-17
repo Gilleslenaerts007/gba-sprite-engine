@@ -17,6 +17,8 @@ private:
     std::unique_ptr<AffineSprite>  player;
     std::unique_ptr<Sprite> bullet;
     std::unique_ptr<Background> bg_C1;
+    std::unique_ptr<Background> bg_C2;
+    std::unique_ptr<Background> bg_C3;
     bool pressingAorB = false;
 
     int scrollX, scrollY;

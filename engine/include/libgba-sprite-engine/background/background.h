@@ -41,6 +41,9 @@ public:
     // Bkground default constructor has MAPLAYOUT_32X32
     Background(int bgIndex, const void *data, int size, const void* map, int mapSize) : data(data), bgIndex(bgIndex), size(size), map(map), mapLayout(MAPLAYOUT_32X32),
                                                                                         screenBlockIndex(0), charBlockIndex(bgIndex), mapSize(mapSize) {}
+    // Bkground constructor with MAPLAYOUT pick 0,1,2,3
+    Background(int bgIndex, const void *data, int size, const void* map, int mapSize, int mapLay) : data(data), bgIndex(bgIndex), size(size), map(map), mapLayout(mapLay),
+                                                                                        screenBlockIndex(0), charBlockIndex(bgIndex), mapSize(mapSize) {}
     virtual void persist();
     void updateMap(const void* map);
     void clearMap();
