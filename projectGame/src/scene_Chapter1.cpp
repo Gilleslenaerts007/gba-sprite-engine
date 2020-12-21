@@ -10,7 +10,8 @@
 #include "scene_Chapter1.h"
 #include "pixel_player.h"
 #include "bg_Chapter1.h"
-
+int centerx = 112;
+int centery = 72;
 std::vector<Background *> scene_Chapter1::backgrounds() {
     return {bg_C1.get()};//, bg_C2.get(), bg_C3.get()};
 }
@@ -72,7 +73,15 @@ void scene_Chapter1::load() {
             .withLocation(5, 50)
             //.withVelocity(1, 1)
             .buildPtr();
-    player = affineBuilder
+    player = builder
+            .withData(FrontWalkingPlayerTiles, sizeof(FrontWalkingPlayerTiles))
+            .withSize(SIZE_16_16)
+            .withLocation(centerx, centery)
+            //.withVelocity(1, 1)
+            .withinBounds()
+            .buildPtr();
+
+    WalkingDown1 = affineBuilder
             .withData(FrontPlayerTiles, sizeof(FrontPlayerTiles))
             .withSize(SIZE_16_16)
             .withLocation(100, 50)
@@ -105,6 +114,7 @@ void scene_Chapter1::tick(u16 keys) {
     //TextStream::instance().setText(engine->getTimer()->to_string(), 18, 1);
     static int x,y, jumpcount = 0;
     static bool jump = 0;
+    static bool run = 0;
     if(pressingAorB && !((keys & KEY_A) || (keys & KEY_B))) {
         //engine->getTimer()->toggle();
         pressingAorB = false;
@@ -120,25 +130,24 @@ void scene_Chapter1::tick(u16 keys) {
         }
 
     } else if(keys & KEY_LEFT) {
-        player->moveTo(player->getX() - 1, player->getY());
-        scrollX -= 1;
+        if (scrollX == 0 || scrollX == 260){player->setVelocity(- 1, 0);}
+        if (scrollX>0 && player->getX()==centerx){scrollX -= 1; player->setVelocity(0,0);}
     } else if(keys & KEY_RIGHT) {
-        player->moveTo(player->getX() + 1, player->getY());
-        scrollX += 1;
+        if (scrollX == 260 || scrollX == 0){player->setVelocity(+ 1, 0);}
+        if (scrollX<260 && player->getX()==centerx){scrollX += 1; player->setVelocity(0,0);}
     } else if(keys & KEY_UP ) {
-        player->moveTo(player->getX(), player->getY() - 1);
-        scrollY -= 1;
+        if (scrollY == 0 || scrollY == 340){player->setVelocity(0, - 1);}
+        if (scrollY>0 && player->getY()==centery){scrollY -= 1; player->setVelocity(0,0);}
     } else if(keys & KEY_DOWN) {
-        player->moveTo(player->getX(), player->getY() + 1);
-        scrollY += 1;
+        if (scrollY == 340 || scrollY == 0){player->setVelocity(0, + 1);}
+        if (scrollY<340 && player->getY()==centery){scrollY += 1; player->setVelocity(0,0);}
     } else if((keys & KEY_A) || (keys & KEY_B)) {
         pressingAorB = true;
-    }
+    }   else{player->setVelocity(0,0);}
 
     //rotation += rotationDiff;
     //enemy.get()->rotate(rotation);
     //player.get()->rotate(rotation);
+    player.get()->flipHorizontally(TRUE);
     bg_C1.get()->scroll(scrollX, scrollY);
-
-
 }

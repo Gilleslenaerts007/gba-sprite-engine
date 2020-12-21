@@ -14,7 +14,11 @@ class scene_Chapter1 : public Scene {
 
 private:
     std::unique_ptr<AffineSprite>  enemy;
-    std::unique_ptr<AffineSprite>  player;
+    std::unique_ptr<AffineSprite>  PlayerFront;
+    std::unique_ptr<AffineSprite>  WalkingDown1;
+    std::unique_ptr<AffineSprite>  WalkingDown2;
+    std::unique_ptr<AffineSprite>  PlayerBack;
+    std::unique_ptr<Sprite>  player;
     std::unique_ptr<Sprite> bullet;
     std::unique_ptr<Background> bg_C1;
     std::unique_ptr<Background> bg_C2;

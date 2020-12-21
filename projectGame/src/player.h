@@ -16,6 +16,7 @@ private:
     int potion;
     int FirstAid;
     std::unique_ptr<Sprite> sprite;
+    const void* Data;
 
 public:
 
