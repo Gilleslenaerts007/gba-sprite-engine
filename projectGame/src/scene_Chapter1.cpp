@@ -59,24 +59,24 @@ void scene_Chapter1::load() {
      * Sprite handler
      * Width x length
      */
-    foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(playerPal, sizeof(playerPal)));
+    foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(SharedPlayerPal, sizeof(SharedPlayerPal)));
     SpriteBuilder<Sprite> builder;
     SpriteBuilder<AffineSprite> affineBuilder;
 
 
 
     enemy = affineBuilder
-            .withData(playerTiles, sizeof(playerTiles))
-            .withSize(SIZE_32_32)
+            .withData(FrontWalkingPlayerTiles, sizeof(FrontWalkingPlayerTiles))
+            .withSize(SIZE_16_16)
             .withVelocity(1, 1)
             .withLocation(5, 50)
-            .withVelocity(1, 1)
+            //.withVelocity(1, 1)
             .buildPtr();
     player = affineBuilder
-            .withData(playerTiles, sizeof(playerTiles))
-            .withSize(SIZE_32_32)
+            .withData(FrontPlayerTiles, sizeof(FrontPlayerTiles))
+            .withSize(SIZE_16_16)
             .withLocation(100, 50)
-            .withVelocity(1, 1)
+            //.withVelocity(1, 1)
             .buildPtr();
     /*
     bullet = builder
@@ -135,9 +135,9 @@ void scene_Chapter1::tick(u16 keys) {
         pressingAorB = true;
     }
 
-    rotation += rotationDiff;
-    enemy.get()->rotate(rotation);
-    player.get()->rotate(rotation);
+    //rotation += rotationDiff;
+    //enemy.get()->rotate(rotation);
+    //player.get()->rotate(rotation);
     bg_C1.get()->scroll(scrollX, scrollY);
 
 
