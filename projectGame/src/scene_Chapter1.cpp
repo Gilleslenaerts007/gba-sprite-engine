@@ -128,26 +128,27 @@ void scene_Chapter1::tick(u16 keys) {
         playerPosY = player->getY();
 
         if (keys & KEY_LEFT) {
-            if (scrollX > 0 && playerPosX <= 111) { scrollX -= 1; }
+            if (scrollX > 0 && playerPosX <= 112) { scrollX -= 1; player->setVelocity(0,0);}
             else player->setVelocity(-1, 0);
         } else if (keys & KEY_RIGHT) {
-            if (scrollX < 260 && playerPosX >= 111) { scrollX += 1; }
+            if (scrollX < 260 && playerPosX >= 112) { scrollX += 1; player->setVelocity(0,0);}
             else player->setVelocity(+1, 0);
         } else if (keys & KEY_UP) {
-            if (scrollY > 0 && playerPosY <= 71) { scrollY -= 1; }
+            if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
             else player->setVelocity(0, -1);
         } else if (keys & KEY_DOWN) {
-            if (scrollY < 340 && playerPosY >= 71) { scrollY += 1; }
+            if (scrollY < 340 && playerPosY >= 72) { scrollY += 1; player->setVelocity(0,0);}
             else player->setVelocity(0, +1);
         } else if ((keys & KEY_A) || (keys & KEY_B)) {
             pressingAorB = true;
         }
     }
-    else player->setVelocity(0, 0);
+    else player->setVelocity(0, 0); rotation = 0;
+//player->stopAnimating();
 
     //rotation += rotationDiff;
     //enemy.get()->rotate(rotation);
-    //player.get()->rotate(rotation);
+    player.get()->rotate(rotation);
     bg_C1.get()->scroll(scrollX, scrollY);
 
 };
