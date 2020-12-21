@@ -66,7 +66,7 @@ void scene_Chapter1::load() {
 
 
     enemy = affineBuilder
-            .withData(FrontWalkingPlayerTiles, sizeof(FrontWalkingPlayerTiles))
+            .withData(FrontPlayerTiles, sizeof(FrontPlayerTiles))
             .withSize(SIZE_16_16)
             //.withVelocity(1, 1)
             .withLocation(1, 1)
@@ -76,6 +76,7 @@ void scene_Chapter1::load() {
             .withData(FrontPlayerTiles, sizeof(FrontPlayerTiles))
             .withSize(SIZE_16_16)
             .withLocation(112, 72)
+            .withAnimated(2, 5)
             //.withVelocity(1, 1)
             .withinBounds()
             .buildPtr();
@@ -139,6 +140,7 @@ void scene_Chapter1::tick(u16 keys) {
         } else if (keys & KEY_DOWN) {
             if (scrollY < 340 && playerPosY >= 72) { scrollY += 1; player->setVelocity(0,0);}
             else player->setVelocity(0, +1);
+            player->animateToFrame(1);
         } else if ((keys & KEY_A) || (keys & KEY_B)) {
             pressingAorB = true;
         }
