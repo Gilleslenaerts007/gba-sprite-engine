@@ -706,6 +706,7 @@
 #define KEY_LEFT		0x0020	//!< Left D-pad
 #define KEY_UP			0x0040	//!< Up D-pad
 #define KEY_DOWN		0x0080	//!< Down D-pad
+#define allkeycheck     0x00F3  //!<check for any inputs other than start
 #define KEY_R			0x0100	//!< Shoulder R
 #define KEY_L			0x0200	//!< Shoulder L
 

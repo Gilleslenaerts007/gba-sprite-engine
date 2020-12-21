@@ -3,3 +3,11 @@
 //
 
 #include "player.h"
+
+
+int getXcoord(){
+}
+
+int getYcoord(){
+
+}

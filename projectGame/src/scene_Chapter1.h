@@ -10,6 +10,9 @@
 #include <libgba-sprite-engine/sprites/affine_sprite.h>
 #include <libgba-sprite-engine/background/background.h>
 
+#define Xlimit 500
+#define Ylimit 500
+
 class scene_Chapter1 : public Scene {
 
 private:
@@ -25,9 +28,18 @@ private:
     int rotation;
     int rotationDiff = 128;
 
+    int playerPosX;
+    int playerPosY;
+    bool scrollX_leftlim;
+    bool scrollX_rightlim;
+    bool scrollY_uplim;
+    bool scrollY_downlim;
+
 public:
     std::vector<Sprite *> sprites() override;
     std::vector<Background *> backgrounds() override;
+
+    void checkbounds();
 
     scene_Chapter1(std::shared_ptr<GBAEngine> engine) : Scene(engine), rotation(0), rotationDiff(128), scrollX(0), scrollY(0) {}
 

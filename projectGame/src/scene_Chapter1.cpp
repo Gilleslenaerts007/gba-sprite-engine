@@ -68,15 +68,16 @@ void scene_Chapter1::load() {
     enemy = affineBuilder
             .withData(FrontWalkingPlayerTiles, sizeof(FrontWalkingPlayerTiles))
             .withSize(SIZE_16_16)
-            .withVelocity(1, 1)
-            .withLocation(5, 50)
+            //.withVelocity(1, 1)
+            .withLocation(1, 1)
             //.withVelocity(1, 1)
             .buildPtr();
     player = affineBuilder
             .withData(FrontPlayerTiles, sizeof(FrontPlayerTiles))
             .withSize(SIZE_16_16)
-            .withLocation(100, 50)
+            .withLocation(112, 72)
             //.withVelocity(1, 1)
+            .withinBounds()
             .buildPtr();
     /*
     bullet = builder
@@ -110,7 +111,8 @@ void scene_Chapter1::tick(u16 keys) {
         pressingAorB = false;
     }
 
-    if(keys & KEY_START) {
+    if(keys & KEY_START)
+    {
         if(!engine->isTransitioning()) {
             //engine->enqueueSound(zelda_secret_16K_mono, zelda_secret_16K_mono_bytes);
 
@@ -119,26 +121,33 @@ void scene_Chapter1::tick(u16 keys) {
             //engine->transitionIntoScene(new FlyingStuffScene(engine), new FadeOutScene(2));
         }
 
-    } else if(keys & KEY_LEFT) {
-        player->moveTo(player->getX() - 1, player->getY());
-        scrollX -= 1;
-    } else if(keys & KEY_RIGHT) {
-        player->moveTo(player->getX() + 1, player->getY());
-        scrollX += 1;
-    } else if(keys & KEY_UP ) {
-        player->moveTo(player->getX(), player->getY() - 1);
-        scrollY -= 1;
-    } else if(keys & KEY_DOWN) {
-        player->moveTo(player->getX(), player->getY() + 1);
-        scrollY += 1;
-    } else if((keys & KEY_A) || (keys & KEY_B)) {
-        pressingAorB = true;
     }
+    else if(keys & allkeycheck) {
+
+        playerPosX = player->getX();
+        playerPosY = player->getY();
+
+        if (keys & KEY_LEFT) {
+            if (scrollX > 0 && playerPosX <= 111) { scrollX -= 1; }
+            else player->setVelocity(-1, 0);
+        } else if (keys & KEY_RIGHT) {
+            if (scrollX < 260 && playerPosX >= 111) { scrollX += 1; }
+            else player->setVelocity(+1, 0);
+        } else if (keys & KEY_UP) {
+            if (scrollY > 0 && playerPosY <= 71) { scrollY -= 1; }
+            else player->setVelocity(0, -1);
+        } else if (keys & KEY_DOWN) {
+            if (scrollY < 340 && playerPosY >= 71) { scrollY += 1; }
+            else player->setVelocity(0, +1);
+        } else if ((keys & KEY_A) || (keys & KEY_B)) {
+            pressingAorB = true;
+        }
+    }
+    else player->setVelocity(0, 0);
 
     //rotation += rotationDiff;
     //enemy.get()->rotate(rotation);
     //player.get()->rotate(rotation);
     bg_C1.get()->scroll(scrollX, scrollY);
 
-
-}
+};

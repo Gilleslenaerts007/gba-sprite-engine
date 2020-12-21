@@ -7,15 +7,15 @@
 
 #include <libgba-sprite-engine/sprites/sprite.h>
 #include <libgba-sprite-engine/sprites/sprite_builder.h>
-#include <vector>
 
-class player {
+
+class player : public Sprite {
 private:
     //std::shared_ptr<Weapon> ak;
     int ammo;
     int potion;
     int FirstAid;
-    std::unique_ptr<Sprite> sprite;
+    std::unique_ptr<Sprite> spriteplayer;
 
 public:
 
