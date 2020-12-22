@@ -30,10 +30,10 @@ private:
 
     int playerPosX;
     int playerPosY;
-    short int previousPlayerModel = 0;
-    short int currentPlayerModel = 7;
     short int staticPlayerModel = 7;
     bool moveflag = false;
+    short int movetimer = 0;
+
 
 public:
     std::vector<Sprite *> sprites() override;

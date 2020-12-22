@@ -104,7 +104,6 @@ void scene_Chapter1::load() {
  */
 void scene_Chapter1::tick(u16 keys) {
     //TextStream::instance().setText(engine->getTimer()->to_string(), 18, 1);
-    static int timer = 0;
 
     if(pressingAorB && !((keys & KEY_A) || (keys & KEY_B))) {
         //engine->getTimer()->toggle();
@@ -129,64 +128,47 @@ void scene_Chapter1::tick(u16 keys) {
         playerPosX = player->getX();
         playerPosY = player->getY();
 
-
-
-        //&& timer >= 4
-        moveflag = !moveflag;
-            if (moveflag)
-            {
-                switch (staticPlayerModel)
-                {
-                    case 2: currentPlayerModel = 4;  break;
-                    case 5: currentPlayerModel = 6;  break;
-                    case 7: currentPlayerModel = 0;  break;
-                    default: break;
-                }
-            }
-            else if (!moveflag)
-            {
-                switch (staticPlayerModel)
-                {
-                    case 2: currentPlayerModel = 3;  break;
-                    case 5: currentPlayerModel = 5;  break;
-                    case 7: currentPlayerModel = 1;  break;
-                    default: break;
-                }
-            }
-
-
-        if (keys & KEY_LEFT) {
-            player->animateToFrame(8);
-            player->flipHorizontally(true);
-            staticPlayerModel = 7;
-            if (scrollX > 0 && playerPosX <= 112) { scrollX -= 1; player->setVelocity(0,0);}
-            else player->setVelocity(-1, 0);
+        if (movetimer >= 7)
+        {
+            moveflag = !moveflag;
+            movetimer = 0;
         }
-        else if (keys & KEY_RIGHT) {
-            player->animateToFrame(8);
-            player->flipHorizontally(false);
-            staticPlayerModel = 7;
-            if (scrollX < 260 && playerPosX >= 112) { scrollX += 1; player->setVelocity(0,0);}
-            else player->setVelocity(+1, 0);
-        }
-        else if (keys & KEY_UP) {
-            player->animateToFrame(5);
-            player->flipHorizontally(false);
-            staticPlayerModel = 4;
-            if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
-            else player->setVelocity(0, -1);
-        }
-        else if (keys & KEY_DOWN) {
-            player->animateToFrame(2);
-            player->flipHorizontally(false);
-            staticPlayerModel = 1;
-            if (scrollY < 340 && playerPosY >= 72) { scrollY += 1; player->setVelocity(0,0);}
-            else  player->setVelocity(0, +1);
 
+        switch(keys)
+        {
+            case KEY_LEFT:  if(moveflag)player->animateToFrame(7);
+                            else player->animateToFrame(8);
+                            player->flipHorizontally(true);
+                            staticPlayerModel = 7;
+                            if (scrollX > 0 && playerPosX <= 112) { scrollX -= 1; player->setVelocity(0,0);}
+                            else player->setVelocity(-1, 0);
+                            break;
+
+            case KEY_RIGHT: if(moveflag)player->animateToFrame(7);
+                            else player->animateToFrame(8);
+                            player->flipHorizontally(false);
+                            staticPlayerModel = 7;
+                            if (scrollX < 260 && playerPosX >= 112) { scrollX += 1; player->setVelocity(0,0);}
+                            else player->setVelocity(+1, 0);
+                            break;
+
+            case KEY_DOWN:  if(moveflag)player->animateToFrame(3);
+                            else player->animateToFrame(2);
+                            player->flipHorizontally(false);
+                            staticPlayerModel = 1;
+                            if (scrollY < 340 && playerPosY >= 72) { scrollY += 1; player->setVelocity(0,0);}
+                            else  player->setVelocity(0, +1);
+                            break;
+
+            case KEY_UP:    if(moveflag)player->animateToFrame(5);
+                            else player->animateToFrame(6);
+                            player->flipHorizontally(false);
+                            staticPlayerModel = 4;
+                            if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
+                            else player->setVelocity(0, -1);
+                            break;
         }
-        else if ((keys & KEY_A) || (keys & KEY_B)) {
-            pressingAorB = true;
-        }
+        movetimer++;
     }
     else
     {
@@ -194,10 +176,6 @@ void scene_Chapter1::tick(u16 keys) {
         rotation = 0;
         player->animateToFrame(staticPlayerModel);
     }
-
-
-
-//player->stopAnimating();
 
     //rotation += rotationDiff;
     //enemy.get()->rotate(rotation);
