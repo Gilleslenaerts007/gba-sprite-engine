@@ -17,7 +17,7 @@ class scene_Chapter1 : public Scene {
 
 private:
     std::unique_ptr<AffineSprite>  enemy;
-    std::unique_ptr<AffineSprite>  player;
+    std::unique_ptr<Sprite>  player;
     std::unique_ptr<Sprite> bullet;
     std::unique_ptr<Background> bg_C1;
     std::unique_ptr<Background> bg_C2;
@@ -30,10 +30,10 @@ private:
 
     int playerPosX;
     int playerPosY;
-    bool scrollX_leftlim;
-    bool scrollX_rightlim;
-    bool scrollY_uplim;
-    bool scrollY_downlim;
+    short int previousPlayerModel = 0;
+    short int currentPlayerModel = 7;
+    short int staticPlayerModel = 7;
+    bool moveflag = false;
 
 public:
     std::vector<Sprite *> sprites() override;

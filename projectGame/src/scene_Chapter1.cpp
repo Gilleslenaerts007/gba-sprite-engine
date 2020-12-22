@@ -59,24 +59,23 @@ void scene_Chapter1::load() {
      * Sprite handler
      * Width x length
      */
-    foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(SharedPlayerPal, sizeof(SharedPlayerPal)));
+    foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(sharedPal, sizeof(sharedPal)));
     SpriteBuilder<Sprite> builder;
     SpriteBuilder<AffineSprite> affineBuilder;
 
 
 
     enemy = affineBuilder
-            .withData(FrontPlayerTiles, sizeof(FrontPlayerTiles))
+            .withData(PlayerlTiles, sizeof(PlayerlTiles))
             .withSize(SIZE_16_16)
             //.withVelocity(1, 1)
             .withLocation(1, 1)
             //.withVelocity(1, 1)
             .buildPtr();
-    player = affineBuilder
-            .withData(FrontPlayerTiles, sizeof(FrontPlayerTiles))
+    player = builder
+            .withData(PlayerlTiles, sizeof(PlayerlTiles))
             .withSize(SIZE_16_16)
             .withLocation(112, 72)
-            .withAnimated(2, 5)
             //.withVelocity(1, 1)
             .withinBounds()
             .buildPtr();
@@ -105,8 +104,8 @@ void scene_Chapter1::load() {
  */
 void scene_Chapter1::tick(u16 keys) {
     //TextStream::instance().setText(engine->getTimer()->to_string(), 18, 1);
-    static int x,y, jumpcount = 0;
-    static bool jump = 0;
+    static int timer = 0;
+
     if(pressingAorB && !((keys & KEY_A) || (keys & KEY_B))) {
         //engine->getTimer()->toggle();
         pressingAorB = false;
@@ -123,34 +122,86 @@ void scene_Chapter1::tick(u16 keys) {
         }
 
     }
-    else if(keys & allkeycheck) {
+
+    if(keys & allkeycheck)
+    {
 
         playerPosX = player->getX();
         playerPosY = player->getY();
 
+
+
+        //&& timer >= 4
+        moveflag = !moveflag;
+            if (moveflag)
+            {
+                switch (staticPlayerModel)
+                {
+                    case 2: currentPlayerModel = 4;  break;
+                    case 5: currentPlayerModel = 6;  break;
+                    case 7: currentPlayerModel = 0;  break;
+                    default: break;
+                }
+            }
+            else if (!moveflag)
+            {
+                switch (staticPlayerModel)
+                {
+                    case 2: currentPlayerModel = 3;  break;
+                    case 5: currentPlayerModel = 5;  break;
+                    case 7: currentPlayerModel = 1;  break;
+                    default: break;
+                }
+            }
+
+
         if (keys & KEY_LEFT) {
+            player->animateToFrame(8);
+            player->flipHorizontally(true);
+            staticPlayerModel = 7;
             if (scrollX > 0 && playerPosX <= 112) { scrollX -= 1; player->setVelocity(0,0);}
             else player->setVelocity(-1, 0);
-        } else if (keys & KEY_RIGHT) {
+        }
+        else if (keys & KEY_RIGHT) {
+            player->animateToFrame(8);
+            player->flipHorizontally(false);
+            staticPlayerModel = 7;
             if (scrollX < 260 && playerPosX >= 112) { scrollX += 1; player->setVelocity(0,0);}
             else player->setVelocity(+1, 0);
-        } else if (keys & KEY_UP) {
+        }
+        else if (keys & KEY_UP) {
+            player->animateToFrame(5);
+            player->flipHorizontally(false);
+            staticPlayerModel = 4;
             if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
             else player->setVelocity(0, -1);
-        } else if (keys & KEY_DOWN) {
+        }
+        else if (keys & KEY_DOWN) {
+            player->animateToFrame(2);
+            player->flipHorizontally(false);
+            staticPlayerModel = 1;
             if (scrollY < 340 && playerPosY >= 72) { scrollY += 1; player->setVelocity(0,0);}
-            else player->setVelocity(0, +1);
-            player->animateToFrame(1);
-        } else if ((keys & KEY_A) || (keys & KEY_B)) {
+            else  player->setVelocity(0, +1);
+
+        }
+        else if ((keys & KEY_A) || (keys & KEY_B)) {
             pressingAorB = true;
         }
     }
-    else player->setVelocity(0, 0); rotation = 0;
+    else
+    {
+        player->setVelocity(0, 0);
+        rotation = 0;
+        player->animateToFrame(staticPlayerModel);
+    }
+
+
+
 //player->stopAnimating();
 
     //rotation += rotationDiff;
     //enemy.get()->rotate(rotation);
-    player.get()->rotate(rotation);
+    //player.get()->rotate(rotation);
     bg_C1.get()->scroll(scrollX, scrollY);
 
 };

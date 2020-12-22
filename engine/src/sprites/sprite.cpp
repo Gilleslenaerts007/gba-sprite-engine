@@ -96,6 +96,11 @@ void Sprite::updateVelocity() {
 void Sprite::updateAnimation() {
     if(!animating) return;
 
+    /*
+    u8 globalcheck = numberOfFrames - 1;
+    if (globalcheck < 0) globalcheck = 0;
+     */
+
     animationCounter++;
     previousFrame = currentFrame;
     if(animationCounter > animationDelay) {
