@@ -9,6 +9,7 @@
 
 #include "scene_Chapter1.h"
 #include "pixel_player.h"
+#include "pixel_bullets.h"
 #include "bg_Chapter1.h"
 
 std::vector<Background *> scene_Chapter1::backgrounds() {
@@ -19,7 +20,7 @@ std::vector<Background *> scene_Chapter1::backgrounds() {
  * Current sprites on the scene?
  */
 std::vector<Sprite *> scene_Chapter1::sprites() {
-    return { player.get(), enemy.get() };
+    return { player.get(), enemy.get(), bullet.get() };
 }
 
 /*
@@ -60,12 +61,9 @@ void scene_Chapter1::load() {
      * Width x length
      */
     foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(sharedPal, sizeof(sharedPal)));
-    SpriteBuilder<Sprite> builder;
-    SpriteBuilder<AffineSprite> affineBuilder;
 
 
-
-    enemy = affineBuilder
+    enemy = builder
             .withData(PlayerlTiles, sizeof(PlayerlTiles))
             .withSize(SIZE_16_16)
             //.withVelocity(1, 1)
@@ -79,13 +77,13 @@ void scene_Chapter1::load() {
             //.withVelocity(1, 1)
             .withinBounds()
             .buildPtr();
-    /*
     bullet = builder
-            .withData(piskelTiles, sizeof(piskelTiles))
-            .withSize(SIZE_8_8)
-            .withLocation(100, 50)
+            .withData(bulletTiles, sizeof(bulletTiles))
+            .withSize(SIZE_16_16)
+            .withLocation(10, 20)
+            //.withVelocity(0, 0)
+            //.withAnimated(10, 5)
             .buildPtr();
-    */
 
     //TextStream::instance().setText("PRESS START", 3, 8);
     /*
@@ -142,6 +140,10 @@ void scene_Chapter1::tick(u16 keys) {
                             staticPlayerModel = 7;
                             if (scrollX > 0 && playerPosX <= 112) { scrollX -= 1; player->setVelocity(0,0);}
                             else player->setVelocity(-1, 0);
+                            bullet->moveTo(playerPosX, playerPosY);
+                            bullet->makeAnimated(1,10,5);
+                            bullet->setVelocity(-3,0);
+                            bullet->flipHorizontally(true);
                             break;
 
             case KEY_RIGHT: if(moveflag)player->animateToFrame(7);
@@ -150,6 +152,10 @@ void scene_Chapter1::tick(u16 keys) {
                             staticPlayerModel = 7;
                             if (scrollX < 260 && playerPosX >= 112) { scrollX += 1; player->setVelocity(0,0);}
                             else player->setVelocity(+1, 0);
+                            bullet->moveTo(playerPosX, playerPosY);
+                            bullet->makeAnimated(1,10,5);
+                            bullet->setVelocity(3,0);
+                            bullet->flipHorizontally(false);
                             break;
 
             case KEY_DOWN:  if(moveflag)player->animateToFrame(3);
@@ -158,6 +164,10 @@ void scene_Chapter1::tick(u16 keys) {
                             staticPlayerModel = 1;
                             if (scrollY < 340 && playerPosY >= 72) { scrollY += 1; player->setVelocity(0,0);}
                             else  player->setVelocity(0, +1);
+                            bullet->moveTo(playerPosX, playerPosY);
+                            bullet->makeAnimated(1,10,5);
+                            bullet->setVelocity(0,3);
+                            bullet->flipVertically(true);
                             break;
 
             case KEY_UP:    if(moveflag)player->animateToFrame(5);
@@ -166,7 +176,21 @@ void scene_Chapter1::tick(u16 keys) {
                             staticPlayerModel = 4;
                             if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
                             else player->setVelocity(0, -1);
+                            bullet->moveTo(playerPosX, playerPosY);
+                            bullet->makeAnimated(1,10,5);
+                            bullet->setVelocity(0,-3);
+                            bullet->flipVertically(true);
                             break;
+
+            /*case KEY_UP:    if(moveflag)player->animateToFrame(5);
+                            else player->animateToFrame(6);
+                            player->flipHorizontally(false);
+                            staticPlayerModel = 4;
+                            if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
+                            else player->setVelocity(0, -1);
+                            break;
+                            */
+
         }
         movetimer++;
     }
@@ -183,3 +207,7 @@ void scene_Chapter1::tick(u16 keys) {
     bg_C1.get()->scroll(scrollX, scrollY);
 
 };
+
+void scene_Chapter1::UpdateBullets() {
+
+}
