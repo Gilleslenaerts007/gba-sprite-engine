@@ -10,16 +10,18 @@
 #include <libgba-sprite-engine/sprites/affine_sprite.h>
 #include <libgba-sprite-engine/background/background.h>
 
+#define Xlimit 500
+#define Ylimit 500
+
 class scene_Chapter1 : public Scene {
 
 private:
-    std::unique_ptr<AffineSprite>  enemy;
-    std::unique_ptr<AffineSprite>  PlayerFront;
-    std::unique_ptr<AffineSprite>  WalkingDown1;
-    std::unique_ptr<AffineSprite>  WalkingDown2;
-    std::unique_ptr<AffineSprite>  PlayerBack;
+    std::unique_ptr<Sprite>  enemy;
     std::unique_ptr<Sprite>  player;
     std::unique_ptr<Sprite> bullet;
+    SpriteBuilder<Sprite> builder;
+    SpriteBuilder<AffineSprite> affineBuilder;
+
     std::unique_ptr<Background> bg_C1;
     std::unique_ptr<Background> bg_C2;
     std::unique_ptr<Background> bg_C3;
@@ -29,9 +31,21 @@ private:
     int rotation;
     int rotationDiff = 128;
 
+    int playerPosX;
+    int playerPosY;
+    short int staticPlayerModel = 7;
+    bool moveflag = false;
+    short int movetimer = 0;
+
+
 public:
     std::vector<Sprite *> sprites() override;
     std::vector<Background *> backgrounds() override;
+
+    /*
+     * Need func to update a vector of sprites with bullets going off the current bounds of the player on the map
+     */
+    void UpdateBullets();
 
     scene_Chapter1(std::shared_ptr<GBAEngine> engine) : Scene(engine), rotation(0), rotationDiff(128), scrollX(0), scrollY(0) {}
 

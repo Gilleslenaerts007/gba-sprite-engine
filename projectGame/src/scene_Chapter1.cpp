@@ -9,9 +9,9 @@
 
 #include "scene_Chapter1.h"
 #include "pixel_player.h"
+#include "pixel_bullets.h"
 #include "bg_Chapter1.h"
-int centerx = 112;
-int centery = 72;
+
 std::vector<Background *> scene_Chapter1::backgrounds() {
     return {bg_C1.get()};//, bg_C2.get(), bg_C3.get()};
 }
@@ -20,7 +20,7 @@ std::vector<Background *> scene_Chapter1::backgrounds() {
  * Current sprites on the scene?
  */
 std::vector<Sprite *> scene_Chapter1::sprites() {
-    return { player.get(), enemy.get() };
+    return { player.get(), enemy.get(), bullet.get() };
 }
 
 /*
@@ -60,40 +60,30 @@ void scene_Chapter1::load() {
      * Sprite handler
      * Width x length
      */
-    foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(SharedPlayerPal, sizeof(SharedPlayerPal)));
-    SpriteBuilder<Sprite> builder;
-    SpriteBuilder<AffineSprite> affineBuilder;
+    foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(sharedPal, sizeof(sharedPal)));
 
 
-
-    enemy = affineBuilder
-            .withData(FrontWalkingPlayerTiles, sizeof(FrontWalkingPlayerTiles))
+    enemy = builder
+            .withData(PlayerlTiles, sizeof(PlayerlTiles))
             .withSize(SIZE_16_16)
-            .withVelocity(1, 1)
-            .withLocation(5, 50)
+            //.withVelocity(1, 1)
+            .withLocation(1, 1)
             //.withVelocity(1, 1)
             .buildPtr();
     player = builder
-            .withData(FrontWalkingPlayerTiles, sizeof(FrontWalkingPlayerTiles))
+            .withData(PlayerlTiles, sizeof(PlayerlTiles))
             .withSize(SIZE_16_16)
-            .withLocation(centerx, centery)
+            .withLocation(112, 72)
             //.withVelocity(1, 1)
             .withinBounds()
             .buildPtr();
-
-    WalkingDown1 = affineBuilder
-            .withData(FrontPlayerTiles, sizeof(FrontPlayerTiles))
-            .withSize(SIZE_16_16)
-            .withLocation(100, 50)
-            //.withVelocity(1, 1)
-            .buildPtr();
-    /*
     bullet = builder
-            .withData(piskelTiles, sizeof(piskelTiles))
-            .withSize(SIZE_8_8)
-            .withLocation(100, 50)
+            .withData(bulletTiles, sizeof(bulletTiles))
+            .withSize(SIZE_16_16)
+            .withLocation(10, 20)
+            //.withVelocity(0, 0)
+            //.withAnimated(10, 5)
             .buildPtr();
-    */
 
     //TextStream::instance().setText("PRESS START", 3, 8);
     /*
@@ -112,15 +102,14 @@ void scene_Chapter1::load() {
  */
 void scene_Chapter1::tick(u16 keys) {
     //TextStream::instance().setText(engine->getTimer()->to_string(), 18, 1);
-    static int x,y, jumpcount = 0;
-    static bool jump = 0;
-    static bool run = 0;
+
     if(pressingAorB && !((keys & KEY_A) || (keys & KEY_B))) {
         //engine->getTimer()->toggle();
         pressingAorB = false;
     }
 
-    if(keys & KEY_START) {
+    if(keys & KEY_START)
+    {
         if(!engine->isTransitioning()) {
             //engine->enqueueSound(zelda_secret_16K_mono, zelda_secret_16K_mono_bytes);
 
@@ -129,25 +118,96 @@ void scene_Chapter1::tick(u16 keys) {
             //engine->transitionIntoScene(new FlyingStuffScene(engine), new FadeOutScene(2));
         }
 
-    } else if(keys & KEY_LEFT) {
-        if (scrollX == 0 || scrollX == 260){player->setVelocity(- 1, 0);}
-        if (scrollX>0 && player->getX()==centerx){scrollX -= 1; player->setVelocity(0,0);}
-    } else if(keys & KEY_RIGHT) {
-        if (scrollX == 260 || scrollX == 0){player->setVelocity(+ 1, 0);}
-        if (scrollX<260 && player->getX()==centerx){scrollX += 1; player->setVelocity(0,0);}
-    } else if(keys & KEY_UP ) {
-        if (scrollY == 0 || scrollY == 340){player->setVelocity(0, - 1);}
-        if (scrollY>0 && player->getY()==centery){scrollY -= 1; player->setVelocity(0,0);}
-    } else if(keys & KEY_DOWN) {
-        if (scrollY == 340 || scrollY == 0){player->setVelocity(0, + 1);}
-        if (scrollY<340 && player->getY()==centery){scrollY += 1; player->setVelocity(0,0);}
-    } else if((keys & KEY_A) || (keys & KEY_B)) {
-        pressingAorB = true;
-    }   else{player->setVelocity(0,0);}
+    }
+
+    if(keys & allkeycheck)
+    {
+
+        playerPosX = player->getX();
+        playerPosY = player->getY();
+
+        if (movetimer >= 7)
+        {
+            moveflag = !moveflag;
+            movetimer = 0;
+        }
+
+        switch(keys)
+        {
+            case KEY_LEFT:  if(moveflag)player->animateToFrame(7);
+                            else player->animateToFrame(8);
+                            player->flipHorizontally(true);
+                            staticPlayerModel = 7;
+                            if (scrollX > 0 && playerPosX <= 112) { scrollX -= 1; player->setVelocity(0,0);}
+                            else player->setVelocity(-1, 0);
+                            bullet->moveTo(playerPosX, playerPosY);
+                            bullet->makeAnimated(1,10,5);
+                            bullet->setVelocity(-3,0);
+                            bullet->flipHorizontally(true);
+                            break;
+
+            case KEY_RIGHT: if(moveflag)player->animateToFrame(7);
+                            else player->animateToFrame(8);
+                            player->flipHorizontally(false);
+                            staticPlayerModel = 7;
+                            if (scrollX < 260 && playerPosX >= 112) { scrollX += 1; player->setVelocity(0,0);}
+                            else player->setVelocity(+1, 0);
+                            bullet->moveTo(playerPosX, playerPosY);
+                            bullet->makeAnimated(1,10,5);
+                            bullet->setVelocity(3,0);
+                            bullet->flipHorizontally(false);
+                            break;
+
+            case KEY_DOWN:  if(moveflag)player->animateToFrame(3);
+                            else player->animateToFrame(2);
+                            player->flipHorizontally(false);
+                            staticPlayerModel = 1;
+                            if (scrollY < 340 && playerPosY >= 72) { scrollY += 1; player->setVelocity(0,0);}
+                            else  player->setVelocity(0, +1);
+                            bullet->moveTo(playerPosX, playerPosY);
+                            bullet->makeAnimated(1,10,5);
+                            bullet->setVelocity(0,3);
+                            bullet->flipVertically(true);
+                            break;
+
+            case KEY_UP:    if(moveflag)player->animateToFrame(5);
+                            else player->animateToFrame(6);
+                            player->flipHorizontally(false);
+                            staticPlayerModel = 4;
+                            if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
+                            else player->setVelocity(0, -1);
+                            bullet->moveTo(playerPosX, playerPosY);
+                            bullet->makeAnimated(1,10,5);
+                            bullet->setVelocity(0,-3);
+                            bullet->flipVertically(true);
+                            break;
+
+            /*case KEY_UP:    if(moveflag)player->animateToFrame(5);
+                            else player->animateToFrame(6);
+                            player->flipHorizontally(false);
+                            staticPlayerModel = 4;
+                            if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
+                            else player->setVelocity(0, -1);
+                            break;
+                            */
+
+        }
+        movetimer++;
+    }
+    else
+    {
+        player->setVelocity(0, 0);
+        rotation = 0;
+        player->animateToFrame(staticPlayerModel);
+    }
 
     //rotation += rotationDiff;
     //enemy.get()->rotate(rotation);
     //player.get()->rotate(rotation);
-    player.get()->flipHorizontally(TRUE);
     bg_C1.get()->scroll(scrollX, scrollY);
+
+};
+
+void scene_Chapter1::UpdateBullets() {
+
 }
