@@ -20,7 +20,27 @@ std::vector<Background *> scene_Chapter1::backgrounds() {
  * Current sprites on the scene?
  */
 std::vector<Sprite *> scene_Chapter1::sprites() {
-    return { player.get(), enemy.get(), bullet.get() };
+    spritesVector = {};
+    spritesVector.push_back(player.get());
+    spritesVector.push_back(bullet.get());
+
+    /*
+    for (int i=0; i < bullets.size(); i++)
+    {
+        spritesVector.push_back(bullets.get());
+    }
+     */
+
+    if(!enemies.empty())
+    {
+        for (int i=0; i < enemies.size(); i++) // niet '<=' anders plek pointer te ver
+        {
+            spritesVector.push_back(enemies[i].get());
+        }
+
+    }
+
+    return { spritesVector };
 }
 
 /*
@@ -63,13 +83,6 @@ void scene_Chapter1::load() {
     foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(sharedPal, sizeof(sharedPal)));
 
 
-    enemy = builder
-            .withData(PlayerlTiles, sizeof(PlayerlTiles))
-            .withSize(SIZE_16_16)
-            //.withVelocity(1, 1)
-            .withLocation(1, 1)
-            //.withVelocity(1, 1)
-            .buildPtr();
     player = builder
             .withData(PlayerlTiles, sizeof(PlayerlTiles))
             .withSize(SIZE_16_16)
@@ -84,6 +97,7 @@ void scene_Chapter1::load() {
             //.withVelocity(0, 0)
             //.withAnimated(10, 5)
             .buildPtr();
+
 
     //TextStream::instance().setText("PRESS START", 3, 8);
     /*
@@ -141,8 +155,8 @@ void scene_Chapter1::tick(u16 keys) {
                             if (scrollX > 0 && playerPosX <= 112) { scrollX -= 1; player->setVelocity(0,0);}
                             else player->setVelocity(-1, 0);
                             bullet->moveTo(playerPosX, playerPosY);
-                            bullet->makeAnimated(1,10,5);
-                            bullet->setVelocity(-3,0);
+                            bullet->makeAnimated(0,9,3);
+                            bullet->setVelocity(-4,0);
                             bullet->flipHorizontally(true);
                             break;
 
@@ -153,8 +167,8 @@ void scene_Chapter1::tick(u16 keys) {
                             if (scrollX < 260 && playerPosX >= 112) { scrollX += 1; player->setVelocity(0,0);}
                             else player->setVelocity(+1, 0);
                             bullet->moveTo(playerPosX, playerPosY);
-                            bullet->makeAnimated(1,10,5);
-                            bullet->setVelocity(3,0);
+                            bullet->makeAnimated(0,9,3);
+                            bullet->setVelocity(4,0);
                             bullet->flipHorizontally(false);
                             break;
 
@@ -164,10 +178,6 @@ void scene_Chapter1::tick(u16 keys) {
                             staticPlayerModel = 1;
                             if (scrollY < 340 && playerPosY >= 72) { scrollY += 1; player->setVelocity(0,0);}
                             else  player->setVelocity(0, +1);
-                            bullet->moveTo(playerPosX, playerPosY);
-                            bullet->makeAnimated(1,10,5);
-                            bullet->setVelocity(0,3);
-                            bullet->flipVertically(true);
                             break;
 
             case KEY_UP:    if(moveflag)player->animateToFrame(5);
@@ -176,10 +186,6 @@ void scene_Chapter1::tick(u16 keys) {
                             staticPlayerModel = 4;
                             if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
                             else player->setVelocity(0, -1);
-                            bullet->moveTo(playerPosX, playerPosY);
-                            bullet->makeAnimated(1,10,5);
-                            bullet->setVelocity(0,-3);
-                            bullet->flipVertically(true);
                             break;
 
             /*case KEY_UP:    if(moveflag)player->animateToFrame(5);
@@ -193,12 +199,14 @@ void scene_Chapter1::tick(u16 keys) {
 
         }
         movetimer++;
+        moving = true;
     }
     else
     {
         player->setVelocity(0, 0);
         rotation = 0;
         player->animateToFrame(staticPlayerModel);
+        moving = false;
     }
 
     //rotation += rotationDiff;
@@ -206,8 +214,35 @@ void scene_Chapter1::tick(u16 keys) {
     //player.get()->rotate(rotation);
     bg_C1.get()->scroll(scrollX, scrollY);
 
+
+    UpdateGame();
+
+
+
 };
 
-void scene_Chapter1::UpdateBullets() {
+void scene_Chapter1::UpdateGame() {
 
+    if ( currentEnemies <= totalEnemies)
+    {
+        if (moving)
+        {
+            enemies.push_back( builder
+                                       .withData(PlayerlTiles, sizeof(PlayerlTiles))
+                                       .withSize(SIZE_16_16)
+                                               //.withVelocity(1, 1)
+                                       .withLocation(player->getX(), player->getY())
+                                       .withVelocity(1, 1)
+                                       .buildPtr());
+            spawnerTime = 0;
+            currentEnemies++;
+            updateSprites = true;
+        }
+        spawnerTime++;
+    }
+
+    if (updateSprites) {
+        engine->updateSpritesInScene();
+        updateSprites = false;
+    }
 }
