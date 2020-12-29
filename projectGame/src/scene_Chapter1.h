@@ -20,7 +20,7 @@ private:
     std::unique_ptr<Sprite>  enemy;
     std::vector<std::unique_ptr<Sprite >> enemies;
     std::unique_ptr<Sprite>  player;
-    std::unique_ptr<Sprite> bullet;
+    std::unique_ptr<Sprite> bulletHori, bulletVerti;
     SpriteBuilder<Sprite> builder;
     SpriteBuilder<AffineSprite> affineBuilder;
 
@@ -46,6 +46,9 @@ private:
     short int staticPlayerModel = 7;
     bool moveflag = false;
     short int movetimer = 0;
+    bool boolPlayerShootHori, boolPlayerShootVerti;
+    bool boolPlayerFlipHori, boolPlayerflipVerti;
+
 
 
 public:

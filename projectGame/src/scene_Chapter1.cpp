@@ -22,7 +22,8 @@ std::vector<Background *> scene_Chapter1::backgrounds() {
 std::vector<Sprite *> scene_Chapter1::sprites() {
     spritesVector = {};
     spritesVector.push_back(player.get());
-    spritesVector.push_back(bullet.get());
+    spritesVector.push_back(bulletHori.get());
+    spritesVector.push_back(bulletVerti.get());
 
     /*
     for (int i=0; i < bullets.size(); i++)
@@ -84,18 +85,21 @@ void scene_Chapter1::load() {
 
 
     player = builder
-            .withData(PlayerlTiles, sizeof(PlayerlTiles))
+            .withData(PlayerFullTiles, sizeof(PlayerFullTiles))
             .withSize(SIZE_16_16)
             .withLocation(112, 72)
             //.withVelocity(1, 1)
             .withinBounds()
             .buildPtr();
-    bullet = builder
-            .withData(bulletTiles, sizeof(bulletTiles))
+    bulletVerti = builder
+            .withData(BulletVertiTiles, sizeof(BulletVertiTiles))
             .withSize(SIZE_16_16)
-            .withLocation(10, 20)
-            //.withVelocity(0, 0)
-            //.withAnimated(10, 5)
+            .withLocation(112, 72)
+            .buildPtr();
+    bulletHori = builder
+            .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
+            .withSize(SIZE_16_16)
+            .withLocation(112, 72)
             .buildPtr();
 
 
@@ -150,31 +154,29 @@ void scene_Chapter1::tick(u16 keys) {
         {
             case KEY_LEFT:  if(moveflag)player->animateToFrame(7);
                             else player->animateToFrame(8);
-                            player->flipHorizontally(true);
                             staticPlayerModel = 7;
+                            boolPlayerFlipHori = true;
+                            boolPlayerShootHori = true;
+                            boolPlayerShootVerti = false;
                             if (scrollX > 0 && playerPosX <= 112) { scrollX -= 1; player->setVelocity(0,0);}
                             else player->setVelocity(-1, 0);
-                            bullet->moveTo(playerPosX, playerPosY);
-                            bullet->makeAnimated(0,9,3);
-                            bullet->setVelocity(-4,0);
-                            bullet->flipHorizontally(true);
                             break;
 
             case KEY_RIGHT: if(moveflag)player->animateToFrame(7);
                             else player->animateToFrame(8);
-                            player->flipHorizontally(false);
+                            boolPlayerFlipHori = false;
+                            boolPlayerShootHori = true;
+                            boolPlayerShootVerti = false;
                             staticPlayerModel = 7;
                             if (scrollX < 260 && playerPosX >= 112) { scrollX += 1; player->setVelocity(0,0);}
                             else player->setVelocity(+1, 0);
-                            bullet->moveTo(playerPosX, playerPosY);
-                            bullet->makeAnimated(0,9,3);
-                            bullet->setVelocity(4,0);
-                            bullet->flipHorizontally(false);
                             break;
 
             case KEY_DOWN:  if(moveflag)player->animateToFrame(3);
                             else player->animateToFrame(2);
-                            player->flipHorizontally(false);
+                            boolPlayerFlipHori = false;
+                            boolPlayerShootHori = false;
+                            boolPlayerShootVerti = true;
                             staticPlayerModel = 1;
                             if (scrollY < 340 && playerPosY >= 72) { scrollY += 1; player->setVelocity(0,0);}
                             else  player->setVelocity(0, +1);
@@ -182,7 +184,9 @@ void scene_Chapter1::tick(u16 keys) {
 
             case KEY_UP:    if(moveflag)player->animateToFrame(5);
                             else player->animateToFrame(6);
-                            player->flipHorizontally(false);
+                            boolPlayerFlipHori = false;
+                            boolPlayerShootHori = false;
+                            boolPlayerShootVerti = true;
                             staticPlayerModel = 4;
                             if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
                             else player->setVelocity(0, -1);
@@ -198,6 +202,7 @@ void scene_Chapter1::tick(u16 keys) {
                             */
 
         }
+        player->flipHorizontally(boolPlayerFlipHori);
         movetimer++;
         moving = true;
     }
@@ -207,6 +212,8 @@ void scene_Chapter1::tick(u16 keys) {
         rotation = 0;
         player->animateToFrame(staticPlayerModel);
         moving = false;
+        boolPlayerShootHori = false;
+        boolPlayerShootVerti = false;
     }
 
     //rotation += rotationDiff;
@@ -223,16 +230,48 @@ void scene_Chapter1::tick(u16 keys) {
 
 void scene_Chapter1::UpdateGame() {
 
+    if (boolPlayerShootHori || boolPlayerShootVerti)
+    {
+        bulletHori->moveTo(playerPosX, playerPosY);
+        bulletHori->makeAnimated(0,8,3);
+        bulletVerti->moveTo(playerPosX, playerPosY);
+        bulletVerti->makeAnimated(0,8,3);
+
+        if (boolPlayerShootVerti){
+            if (staticPlayerModel == 1){
+                bulletVerti->flipVertically(true);
+                bulletVerti->setVelocity(0,4);
+            }
+            else {
+                bulletVerti->flipVertically(false);
+                bulletVerti->setVelocity(0,-4);
+            }
+        }
+        else{
+            if (boolPlayerFlipHori){
+                bulletHori->flipHorizontally(true);
+                bulletHori->setVelocity(-4,0);
+            }
+            else {
+                bulletHori->flipHorizontally(false);
+                bulletHori->setVelocity(4,0);
+            }
+        }
+        //updateSprites = true;
+        boolPlayerShootHori = false;
+        boolPlayerShootVerti = false;
+    }
+
     if ( currentEnemies <= totalEnemies)
     {
-        if (moving)
+        if (moving && spawnerTime <= 5000)
         {
             enemies.push_back( builder
-                                       .withData(PlayerlTiles, sizeof(PlayerlTiles))
+                                       .withData(EnemyFullTiles, sizeof(EnemyFullTiles))
                                        .withSize(SIZE_16_16)
                                                //.withVelocity(1, 1)
-                                       .withLocation(player->getX(), player->getY())
-                                       .withVelocity(1, 1)
+                                       .withLocation(rand() % player->getX(), rand() % player->getY())
+                                       .withVelocity(rand() % 1, rand() % 1)
                                        .buildPtr());
             spawnerTime = 0;
             currentEnemies++;
