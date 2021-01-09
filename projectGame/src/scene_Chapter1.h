@@ -29,26 +29,35 @@ private:
     std::unique_ptr<Background> bg_C3;
     bool pressingAorB = false;
     bool updateSprites;
-    bool moving;
 
     int scrollX, scrollY;
     int rotation;
     int rotationDiff = 128;
 
     //Enemie vars
-    int spawnerTime = 0;
+    int spawnerTime;
     int totalEnemies = 10;
     int currentEnemies = 0;
+    int enemyPosX;
+    int enemyPosY;
+    int moveTimerEnemy;
+    bool moveflagEnemy = false;
+    int loopEnemies;
+    int trackingY;
+    int trackingX;
+    short int staticEnemyModel = 7;
+    int oldScrollX, oldScrollY;
+    short int enemyMoveSpeed = 3;
+    std::deque<VECTOR> trackCoords;
 
     //Player vars
     int playerPosX;
     int playerPosY;
+    bool boolPlayerMoving;
     short int staticPlayerModel = 7;
     bool moveflag = false;
-    short int movetimer = 0;
-    bool boolPlayerShootHori, boolPlayerShootVerti;
-    bool boolPlayerFlipHori, boolPlayerflipVerti;
-
+    short int moveTimerPlayer = 0;
+    bool boolPlayerFlipHori;
 
 
 public:
@@ -59,6 +68,7 @@ public:
      * Need func to update a vector of sprites with bullets going off the current bounds of the player on the map
      */
     void UpdateGame();
+    void UpdateMovements();
 
     scene_Chapter1(std::shared_ptr<GBAEngine> engine) : Scene(engine), rotation(0), rotationDiff(128), scrollX(0), scrollY(0) {}
 
