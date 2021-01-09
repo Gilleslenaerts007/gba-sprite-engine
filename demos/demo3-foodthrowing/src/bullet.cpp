@@ -14,6 +14,7 @@ void Bullet::setDestination(VECTOR destination) {
     this->dest = destination;
 
     this->coords = currentPos.bresenhamLineTo(destination);
+
 }
 
 void Bullet::tick() {

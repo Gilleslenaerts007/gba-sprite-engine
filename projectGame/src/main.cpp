@@ -6,12 +6,14 @@
 #include <libgba-sprite-engine/allocator.h>
 
 #include "scene_start.h"
+#include <time.h>
 
 int main() {
     std::shared_ptr<GBAEngine> engine(new GBAEngine());
 
     scene_start* startScene = new scene_start(engine);
     engine->setScene(startScene);
+    srand (time(NULL));
 
     while (true) {
         engine->update();

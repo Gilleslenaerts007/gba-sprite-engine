@@ -54,6 +54,7 @@ std::vector<Sprite *> scene_Chapter1::sprites() {
  * Other entities/enemies/boss are defined per scene class.
  */
 void scene_Chapter1::load() {
+
     /*
      * Bij de palletten moeten de kleuren in 16bit formaat opgemaakt worden.
      * De tiles en map mogen 32bit opgemaakt/omgezet worden.
@@ -94,12 +95,12 @@ void scene_Chapter1::load() {
     bulletVerti = builder
             .withData(BulletVertiTiles, sizeof(BulletVertiTiles))
             .withSize(SIZE_16_16)
-            .withLocation(112, 72)
+            .withLocation(1, 1)
             .buildPtr();
     bulletHori = builder
             .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
             .withSize(SIZE_16_16)
-            .withLocation(112, 72)
+            .withLocation(1, 1)
             .buildPtr();
 
 
@@ -144,39 +145,32 @@ void scene_Chapter1::tick(u16 keys) {
         playerPosX = player->getX();
         playerPosY = player->getY();
 
-        if (movetimer >= 7)
+        if (moveTimerPlayer >= 7)
         {
             moveflag = !moveflag;
-            movetimer = 0;
+            moveTimerPlayer = 0;
         }
 
         switch(keys)
         {
             case KEY_LEFT:  if(moveflag)player->animateToFrame(7);
                             else player->animateToFrame(8);
-                            staticPlayerModel = 7;
+                            staticPlayerModel = 8;
                             boolPlayerFlipHori = true;
-                            boolPlayerShootHori = true;
-                            boolPlayerShootVerti = false;
                             if (scrollX > 0 && playerPosX <= 112) { scrollX -= 1; player->setVelocity(0,0);}
                             else player->setVelocity(-1, 0);
                             break;
 
             case KEY_RIGHT: if(moveflag)player->animateToFrame(7);
                             else player->animateToFrame(8);
-                            boolPlayerFlipHori = false;
-                            boolPlayerShootHori = true;
-                            boolPlayerShootVerti = false;
                             staticPlayerModel = 7;
+                            boolPlayerFlipHori = false;
                             if (scrollX < 260 && playerPosX >= 112) { scrollX += 1; player->setVelocity(0,0);}
                             else player->setVelocity(+1, 0);
                             break;
 
             case KEY_DOWN:  if(moveflag)player->animateToFrame(3);
                             else player->animateToFrame(2);
-                            boolPlayerFlipHori = false;
-                            boolPlayerShootHori = false;
-                            boolPlayerShootVerti = true;
                             staticPlayerModel = 1;
                             if (scrollY < 340 && playerPosY >= 72) { scrollY += 1; player->setVelocity(0,0);}
                             else  player->setVelocity(0, +1);
@@ -184,104 +178,247 @@ void scene_Chapter1::tick(u16 keys) {
 
             case KEY_UP:    if(moveflag)player->animateToFrame(5);
                             else player->animateToFrame(6);
-                            boolPlayerFlipHori = false;
-                            boolPlayerShootHori = false;
-                            boolPlayerShootVerti = true;
                             staticPlayerModel = 4;
                             if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
                             else player->setVelocity(0, -1);
                             break;
-
-            /*case KEY_UP:    if(moveflag)player->animateToFrame(5);
-                            else player->animateToFrame(6);
-                            player->flipHorizontally(false);
-                            staticPlayerModel = 4;
-                            if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
-                            else player->setVelocity(0, -1);
-                            break;
-                            */
 
         }
-        player->flipHorizontally(boolPlayerFlipHori);
-        movetimer++;
-        moving = true;
+        boolPlayerMoving = true;
+        moveTimerPlayer++;
+        moveTimerEnemy++;
     }
     else
     {
         player->setVelocity(0, 0);
         rotation = 0;
         player->animateToFrame(staticPlayerModel);
-        moving = false;
-        boolPlayerShootHori = false;
-        boolPlayerShootVerti = false;
+        boolPlayerMoving = false;
     }
+    player->flipHorizontally(boolPlayerFlipHori);
 
     //rotation += rotationDiff;
     //enemy.get()->rotate(rotation);
     //player.get()->rotate(rotation);
+    //
+    //
+
+    //UpdateGame();
+
     bg_C1.get()->scroll(scrollX, scrollY);
-
-
-    UpdateGame();
-
-
 
 };
 
 void scene_Chapter1::UpdateGame() {
 
-    if (boolPlayerShootHori || boolPlayerShootVerti)
-    {
-        bulletHori->moveTo(playerPosX, playerPosY);
-        bulletHori->makeAnimated(0,8,3);
-        bulletVerti->moveTo(playerPosX, playerPosY);
-        bulletVerti->makeAnimated(0,8,3);
-
-        if (boolPlayerShootVerti){
-            if (staticPlayerModel == 1){
-                bulletVerti->flipVertically(true);
-                bulletVerti->setVelocity(0,4);
-            }
-            else {
-                bulletVerti->flipVertically(false);
-                bulletVerti->setVelocity(0,-4);
-            }
-        }
-        else{
-            if (boolPlayerFlipHori){
-                bulletHori->flipHorizontally(true);
-                bulletHori->setVelocity(-4,0);
-            }
-            else {
-                bulletHori->flipHorizontally(false);
-                bulletHori->setVelocity(4,0);
-            }
-        }
-        //updateSprites = true;
-        boolPlayerShootHori = false;
-        boolPlayerShootVerti = false;
-    }
-
     if ( currentEnemies <= totalEnemies)
     {
-        if (moving && spawnerTime <= 5000)
+        if (boolPlayerMoving && (spawnerTime >= 20) ) //         if (boolPlayerMoving && spawnerTime <= 5000) //
         {
             enemies.push_back( builder
                                        .withData(EnemyFullTiles, sizeof(EnemyFullTiles))
                                        .withSize(SIZE_16_16)
                                                //.withVelocity(1, 1)
-                                       .withLocation(rand() % player->getX(), rand() % player->getY())
+                                       .withLocation(rand()%GBA_SCREEN_WIDTH +1, rand()%GBA_SCREEN_HEIGHT+1)
                                        .withVelocity(rand() % 1, rand() % 1)
                                        .buildPtr());
             spawnerTime = 0;
             currentEnemies++;
-            updateSprites = true;
+            engine->updateSpritesInScene();
         }
-        spawnerTime++;
+        else spawnerTime++;
     }
 
+    // Kunnen hier zeggen dat we bv een movetimer voor enemy hebben zodat de speler 2x rapper is en dus 1 zet voor is.
+    if (!enemies.empty() )// && moveTimerEnemy >= 2)
+    {
+        UpdateMovements();
+    }
+
+    /*
     if (updateSprites) {
         engine->updateSpritesInScene();
         updateSprites = false;
     }
+     */
 }
+
+void scene_Chapter1::UpdateMovements(){
+
+    //loopEnemies = 0;
+    enemyPosX = enemies[loopEnemies]->getX();
+    enemyPosY = enemies[loopEnemies]->getY();
+    if (moveTimerEnemy >= 2)
+    {
+        moveflagEnemy = !moveflagEnemy;
+        moveTimerEnemy = 0;
+    }
+
+    if ( (enemyPosX == playerPosX) || (enemyPosY == playerPosY) )
+    {
+        //shoot();
+        enemies[loopEnemies]->animateToFrame(staticEnemyModel);
+    }
+    else
+    {
+        trackingY = abs (enemyPosY - playerPosY);
+        trackingX = abs (enemyPosX - playerPosX);
+
+        if (trackingX < trackingY)
+        {
+            if (enemyPosX > playerPosX)
+            {
+                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(7);
+                else enemies[loopEnemies]->animateToFrame(8);
+                staticEnemyModel = 7;
+                enemies[loopEnemies]->flipHorizontally(true);
+                enemies[loopEnemies]->moveTo(enemyPosX-1, enemyPosY);
+            }
+            else
+            {
+                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(7);
+                else enemies[loopEnemies]->animateToFrame(8);
+                staticEnemyModel = 8;
+                enemies[loopEnemies]->flipHorizontally(false);
+                enemies[loopEnemies]->moveTo(enemyPosX+1, enemyPosY);
+            }
+        }
+        else if (trackingY < trackingX)
+        {
+            if (enemyPosY < playerPosY)
+            {
+                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(3);
+                else enemies[loopEnemies]->animateToFrame(2);
+                staticEnemyModel = 1;
+                enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY+1);
+            }
+            else
+            {
+                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(5);
+                else enemies[loopEnemies]->animateToFrame(6);
+                staticEnemyModel = 4;
+                enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY-1);
+            }
+        }
+       moveTimerEnemy++;
+    }
+
+
+    if (loopEnemies < enemies.size() -1 )
+    {
+        loopEnemies++;
+    }
+    else loopEnemies = 0;
+}
+
+/* bkup code
+ *                 if (enemyPosX > playerPosX || enemyPosX < playerPosX)
+                {
+                    if(enemyPosX > playerPosX)
+                    {
+                        // if (scrollX > 260 && enemyPosX <= 112) { scrollX -= 1; enemies[i]->setVelocity(0,0);}
+                        //else
+                        enemies[i]->setVelocity(-2, 0);
+                    }
+                    else
+                    {
+                        //if (scrollX < 260 && enemyPosX >= 112) { scrollX += 1; enemies[i]->setVelocity(0,0);}
+                        //else
+                        enemies[i]->setVelocity(+2, 0);
+                    }
+                }
+                else //if (enemyPosY > playerPosY || enemyPosY < playerPosY)
+                {
+                    if(enemyPosY > playerPosY)
+                    {
+                        //if (scrollY < 0 && enemyPosY >= 72){ scrollY += 1; enemies[i]->setVelocity(0,0);}
+                        //else
+                        enemies[i]->setVelocity(0, -1);
+                    }
+                    else
+                    {
+                        //if (scrollY > 0 && enemyPosY <= 72){ scrollY -= 1; enemies[i]->setVelocity(0,0);}
+                        //else
+                        enemies[i]->setVelocity(0, +1);
+                    }
+                }
+
+
+    if (boolPlayerMoving && ( (!enemies.empty()) && moveTimerEnemy >= 10) ) //movement with scroll & velocity of enemies
+    {
+        if (loopEnemies >= enemies.size())
+        {
+            loopEnemies = 0;
+        }
+        moveTimerEnemy = 0;
+        //Enemy tracking to player
+        enemyPosX = enemies[loopEnemies]->getX();
+        enemyPosY = enemies[loopEnemies]->getY();
+        if (enemyPosY == playerPosY || enemyPosX == playerPosX)
+        {
+            enemies[loopEnemies]->setVelocity(0, 0);
+            //shoot here
+        }
+        else
+        {
+            switch(staticPlayerModel)
+            {
+                //down
+                case 1: if ( (scrollY < 340 && playerPosY >= 72) && (enemyPosX > playerPosX) )
+                        {
+                            scrollY += 1;
+                            player->setVelocity(0,0);
+                            enemies[loopEnemies]->setVelocity(-1, 0);
+                        }
+                        else{
+                            player->setVelocity(0, +1);
+                            enemies[loopEnemies]->setVelocity(-1, 0);
+                        }
+
+                        break;
+                case 4: break;
+                case 7: break;
+                case 8: break;
+            }
+
+        }
+        loopEnemies++;
+    }
+    else if (!boolPlayerMoving && (!enemies.empty()) && moveTimerEnemy >= 10 ) // movement enemy only
+    {
+        if (loopEnemies >= enemies.size()) loopEnemies = 0;
+        moveTimerEnemy = 0;
+        //Enemy tracking to player
+        enemyPosX = enemies[loopEnemies]->getX();
+        enemyPosY = enemies[loopEnemies]->getY();
+        if (enemyPosY == playerPosY || enemyPosX == playerPosX)
+        {
+            enemies[loopEnemies]->setVelocity(0, 0);
+            //shoot here
+        }
+        else
+        {
+            switch(staticPlayerModel)
+            {
+                //down
+                case 1: if ( (scrollY < 340 && playerPosY >= 72) && (enemyPosX > playerPosX) )
+                    {
+                        scrollY += 1;
+                        player->setVelocity(0,0);
+                        enemies[loopEnemies]->setVelocity(0, 0);
+                    }
+                    else{
+                        player->setVelocity(0,+1);
+                        enemies[loopEnemies]->setVelocity(-1, 0);
+                    }
+
+                    break;
+                case 4: break;
+                case 7: break;
+                case 8: break;
+            }
+        }
+
+        loopEnemies++;
+    }
+ */
