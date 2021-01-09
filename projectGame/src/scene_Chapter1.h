@@ -17,8 +17,8 @@ class scene_Chapter1 : public Scene {
 
 private:
     std::vector<Sprite *> spritesVector;
-    std::unique_ptr<Sprite>  enemy;
     std::vector<std::unique_ptr<Sprite >> enemies;
+    std::vector<std::unique_ptr<Sprite >> Bullets;
     std::unique_ptr<Sprite>  player;
     std::unique_ptr<Sprite> bulletHori, bulletVerti;
     SpriteBuilder<Sprite> builder;
@@ -36,7 +36,7 @@ private:
 
     //Enemie vars
     int spawnerTime;
-    int totalEnemies = 10;
+    int totalEnemies = 4;
     int currentEnemies = 0;
     int enemyPosX;
     int enemyPosY;
@@ -54,21 +54,26 @@ private:
     int playerPosX;
     int playerPosY;
     bool boolPlayerMoving;
+    int playerfacingx = 1;
+    int playerfacingy = 1;
+    int TimeBetweenShots = 15;
+    int ShotCooldown = 0;
     short int staticPlayerModel = 7;
     bool moveflag = false;
     short int moveTimerPlayer = 0;
     bool boolPlayerFlipHori;
+    int OldBulletSize;
 
 
 public:
 
     std::vector<Sprite *> sprites() override;
     std::vector<Background *> backgrounds() override;
-    /*
-     * Need func to update a vector of sprites with bullets going off the current bounds of the player on the map
-     */
+
     void UpdateGame();
     void UpdateMovements();
+    void OffScreen();
+    void shoot();
 
     scene_Chapter1(std::shared_ptr<GBAEngine> engine) : Scene(engine), rotation(0), rotationDiff(128), scrollX(0), scrollY(0) {}
 
