@@ -46,6 +46,8 @@ private:
     int trackingY;
     int trackingX;
     short int staticEnemyModel = 7;
+    int oldScrollX, oldScrollY;
+    short int enemyMoveSpeed = 3;
     std::deque<VECTOR> trackCoords;
 
     //Player vars

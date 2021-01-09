@@ -203,7 +203,7 @@ void scene_Chapter1::tick(u16 keys) {
     //
     //
 
-    //UpdateGame();
+    UpdateGame();
 
     bg_C1.get()->scroll(scrollX, scrollY);
 
@@ -246,6 +246,92 @@ void scene_Chapter1::UpdateGame() {
 void scene_Chapter1::UpdateMovements(){
 
     //loopEnemies = 0;
+
+    enemyPosX = enemies[loopEnemies]->getX();
+    enemyPosY = enemies[loopEnemies]->getY();
+    if (moveTimerEnemy >= 2)
+    {
+        moveflagEnemy = !moveflagEnemy;
+        moveTimerEnemy = 0;
+    }
+
+    if ( (enemyPosX == playerPosX) || (enemyPosY == playerPosY) )
+    {
+        //shoot();
+        enemies[loopEnemies]->animateToFrame(staticEnemyModel);
+    }
+    else
+    {
+        trackingY = abs (enemyPosY - playerPosY);
+        trackingX = abs (enemyPosX - playerPosX);
+
+        if (trackingX < trackingY)
+        {
+            if (enemyPosX > playerPosX)
+            {
+                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(7);
+                else enemies[loopEnemies]->animateToFrame(8);
+                staticEnemyModel = 7;
+                enemies[loopEnemies]->flipHorizontally(true);
+                enemyPosX--;
+            }
+            else
+            {
+                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(7);
+                else enemies[loopEnemies]->animateToFrame(8);
+                staticEnemyModel = 8;
+                enemies[loopEnemies]->flipHorizontally(false);
+                enemyPosX++;
+            }
+        }
+        else if (trackingY < trackingX)
+        {
+            if (enemyPosY < playerPosY)
+            {
+                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(3);
+                else enemies[loopEnemies]->animateToFrame(2);
+                staticEnemyModel = 1;
+                enemyPosY++;
+            }
+            else
+            {
+                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(5);
+                else enemies[loopEnemies]->animateToFrame(6);
+                staticEnemyModel = 4;
+                enemyPosY--;
+            }
+        }
+       moveTimerEnemy++;
+    }
+
+    if (oldScrollX == scrollX){
+        enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY);
+    }
+    if (oldScrollX > scrollX){
+        enemies[loopEnemies]->moveTo(enemyPosX+enemyMoveSpeed, enemyPosY);
+    }
+    else if (oldScrollX < scrollX){
+        enemies[loopEnemies]->moveTo(enemyPosX-enemyMoveSpeed, enemyPosY);
+    }
+    if (oldScrollY > scrollY){
+        enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY+enemyMoveSpeed);
+    }
+    else if (oldScrollY < scrollY){
+        enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY-enemyMoveSpeed);
+    }
+
+    if (loopEnemies < enemies.size() -1 )
+    {
+        loopEnemies++;
+    }
+    else loopEnemies = 0;
+
+    oldScrollX = scrollX;
+    oldScrollY = scrollY;
+}
+
+/* bkup code
+ *                 if (enemyPosX > playerPosX || enemyPosX < playerPosX)
     enemyPosX = enemies[loopEnemies]->getX();
     enemyPosY = enemies[loopEnemies]->getY();
     if (moveTimerEnemy >= 2)
@@ -304,121 +390,4 @@ void scene_Chapter1::UpdateMovements(){
     }
 
 
-    if (loopEnemies < enemies.size() -1 )
-    {
-        loopEnemies++;
-    }
-    else loopEnemies = 0;
-}
-
-/* bkup code
- *                 if (enemyPosX > playerPosX || enemyPosX < playerPosX)
-                {
-                    if(enemyPosX > playerPosX)
-                    {
-                        // if (scrollX > 260 && enemyPosX <= 112) { scrollX -= 1; enemies[i]->setVelocity(0,0);}
-                        //else
-                        enemies[i]->setVelocity(-2, 0);
-                    }
-                    else
-                    {
-                        //if (scrollX < 260 && enemyPosX >= 112) { scrollX += 1; enemies[i]->setVelocity(0,0);}
-                        //else
-                        enemies[i]->setVelocity(+2, 0);
-                    }
-                }
-                else //if (enemyPosY > playerPosY || enemyPosY < playerPosY)
-                {
-                    if(enemyPosY > playerPosY)
-                    {
-                        //if (scrollY < 0 && enemyPosY >= 72){ scrollY += 1; enemies[i]->setVelocity(0,0);}
-                        //else
-                        enemies[i]->setVelocity(0, -1);
-                    }
-                    else
-                    {
-                        //if (scrollY > 0 && enemyPosY <= 72){ scrollY -= 1; enemies[i]->setVelocity(0,0);}
-                        //else
-                        enemies[i]->setVelocity(0, +1);
-                    }
-                }
-
-
-    if (boolPlayerMoving && ( (!enemies.empty()) && moveTimerEnemy >= 10) ) //movement with scroll & velocity of enemies
-    {
-        if (loopEnemies >= enemies.size())
-        {
-            loopEnemies = 0;
-        }
-        moveTimerEnemy = 0;
-        //Enemy tracking to player
-        enemyPosX = enemies[loopEnemies]->getX();
-        enemyPosY = enemies[loopEnemies]->getY();
-        if (enemyPosY == playerPosY || enemyPosX == playerPosX)
-        {
-            enemies[loopEnemies]->setVelocity(0, 0);
-            //shoot here
-        }
-        else
-        {
-            switch(staticPlayerModel)
-            {
-                //down
-                case 1: if ( (scrollY < 340 && playerPosY >= 72) && (enemyPosX > playerPosX) )
-                        {
-                            scrollY += 1;
-                            player->setVelocity(0,0);
-                            enemies[loopEnemies]->setVelocity(-1, 0);
-                        }
-                        else{
-                            player->setVelocity(0, +1);
-                            enemies[loopEnemies]->setVelocity(-1, 0);
-                        }
-
-                        break;
-                case 4: break;
-                case 7: break;
-                case 8: break;
-            }
-
-        }
-        loopEnemies++;
-    }
-    else if (!boolPlayerMoving && (!enemies.empty()) && moveTimerEnemy >= 10 ) // movement enemy only
-    {
-        if (loopEnemies >= enemies.size()) loopEnemies = 0;
-        moveTimerEnemy = 0;
-        //Enemy tracking to player
-        enemyPosX = enemies[loopEnemies]->getX();
-        enemyPosY = enemies[loopEnemies]->getY();
-        if (enemyPosY == playerPosY || enemyPosX == playerPosX)
-        {
-            enemies[loopEnemies]->setVelocity(0, 0);
-            //shoot here
-        }
-        else
-        {
-            switch(staticPlayerModel)
-            {
-                //down
-                case 1: if ( (scrollY < 340 && playerPosY >= 72) && (enemyPosX > playerPosX) )
-                    {
-                        scrollY += 1;
-                        player->setVelocity(0,0);
-                        enemies[loopEnemies]->setVelocity(0, 0);
-                    }
-                    else{
-                        player->setVelocity(0,+1);
-                        enemies[loopEnemies]->setVelocity(-1, 0);
-                    }
-
-                    break;
-                case 4: break;
-                case 7: break;
-                case 8: break;
-            }
-        }
-
-        loopEnemies++;
-    }
  */
