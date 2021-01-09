@@ -10,8 +10,11 @@
 #include <libgba-sprite-engine/sprites/affine_sprite.h>
 #include <libgba-sprite-engine/background/background.h>
 
-#define Xlimit 500
-#define Ylimit 500
+//define Xlimit 500
+//define Ylimit 500
+
+//define screenwidth
+//define screenheight
 
 class scene_Chapter1 : public Scene {
 
@@ -19,6 +22,7 @@ private:
     std::vector<Sprite *> spritesVector;
     std::unique_ptr<Sprite>  enemy;
     std::vector<std::unique_ptr<Sprite >> enemies;
+    std::vector<std::unique_ptr<Sprite >> Bullets;
     std::unique_ptr<Sprite>  player;
     std::unique_ptr<Sprite> bulletHori, bulletVerti;
     SpriteBuilder<Sprite> builder;
@@ -31,6 +35,7 @@ private:
     bool updateSprites;
     bool moving;
 
+
     int scrollX, scrollY;
     int rotation;
     int rotationDiff = 128;
@@ -41,27 +46,30 @@ private:
     int currentEnemies = 0;
 
     //Player vars
+    int TimeBetweenShots;
+    int ShotCooldown = 0;
     int playerPosX;
     int playerPosY;
+    int playerfacingx = 1;
+    int playerfacingy = 1;
     short int staticPlayerModel = 7;
     bool moveflag = false;
     short int movetimer = 0;
     bool boolPlayerShootHori, boolPlayerShootVerti;
     bool boolPlayerFlipHori, boolPlayerflipVerti;
-
+    const void* BulletData;
 
 
 public:
-
     std::vector<Sprite *> sprites() override;
     std::vector<Background *> backgrounds() override;
     /*
      * Need func to update a vector of sprites with bullets going off the current bounds of the player on the map
      */
     void UpdateGame();
-
+    void shoot();
     scene_Chapter1(std::shared_ptr<GBAEngine> engine) : Scene(engine), rotation(0), rotationDiff(128), scrollX(0), scrollY(0) {}
-
+    void OffScreen();
     void load() override;
     void tick(u16 keys) override;
 
