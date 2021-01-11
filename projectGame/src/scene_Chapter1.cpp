@@ -200,6 +200,8 @@ void scene_Chapter1::tick(u16 keys) {
                             playerfacingx = 0;
                             playerfacingy = -1;
                             break;
+            default :       player->setVelocity(0,0);
+
 
         }
         boolPlayerMoving = true;
@@ -345,16 +347,19 @@ void scene_Chapter1::shoot() {
                               .withVelocity(playerfacingx*2,playerfacingy*2)
                               .buildPtr());
     TextStream::instance().setText(std::string("bullets on screen: ") + std::to_string(Bullets.size()), 1, 1);
+    if (playerfacingx == -1)
+    {
+        Bullets[1]->flipHorizontally(TRUE);
+        engine->updateSpritesInScene();
+    }
     ShotCooldown = TimeBetweenShots;
 }
 void scene_Chapter1::OffScreen() {
-
     for (int i = 0 ; i<Bullets.size();i++)
     {
         if (Bullets[i]->isOffScreen())
         {
             Bullets.erase(std::remove(Bullets.begin(), Bullets.end(), Bullets[i]));
-            engine.get()->updateSpritesInScene();
            //engine->update();
         }
     }
