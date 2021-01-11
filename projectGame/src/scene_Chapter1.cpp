@@ -150,6 +150,8 @@ void scene_Chapter1::tick(u16 keys) {
         if (keys & KEY_A)
         {
             if (Bullets.size()<=10 && ShotCooldown == 0){shoot();}
+            //player->animateToFrame(staticPlayerModel);
+            player->flipHorizontally(boolPlayerFlipHori);
         }
 
         playerPosX = player->getX();
@@ -226,10 +228,7 @@ void scene_Chapter1::tick(u16 keys) {
         player->setVelocity(0, 0);
         rotation = 0;
         player->animateToFrame(staticPlayerModel);
-        if (playerfacingx == -1)
-        {
-            player->flipHorizontally(boolPlayerFlipHori);
-        }
+
         moving = false;
         boolPlayerShootHori = false;
         boolPlayerShootVerti = false;
@@ -272,7 +271,7 @@ void scene_Chapter1::OffScreen() {
         {
             Bullets.erase(std::remove(Bullets.begin(), Bullets.end(), Bullets[i]));
             engine.get()->updateSpritesInScene();
-            engine->update();
+//            engine->update();
         }
     }
 
