@@ -12,6 +12,7 @@
 #include "pixel_bullets.h"
 #include "bg_Chapter1.h"
 #include <algorithm>
+
 std::vector<Background *> scene_Chapter1::backgrounds() {
     return {bg_C1.get()};//, bg_C2.get(), bg_C3.get()};
 }
@@ -20,25 +21,33 @@ std::vector<Background *> scene_Chapter1::backgrounds() {
  * Current sprites on the scene?
  */
 std::vector<Sprite *> scene_Chapter1::sprites() {
+    /*
+    for (int i =0; i<spritesVector.size();i++)
+    {
+        spritesVector.pop_back();
+    }
+     */
     spritesVector = {};
     spritesVector.push_back(player.get());
 
-    /*
-    for (int i=0; i < bullets.size(); i++)
-    {
-        spritesVector.push_back(bullets.get());
+    if (Bullets.size() != 0){
+        for (int i=0; i < Bullets.size(); i++) // niet '<=' anders plek pointer te ver
+        {
+            spritesVector.push_back(Bullets[i].get());
+        }
     }
-     */
-
-        if (Bullets.size() != 0){
-            for (int i=0; i < Bullets.size(); i++) // niet '<=' anders plek pointer te ver
-            {
-                spritesVector.push_back(Bullets[i].get());
-            }
+    if(!enemies.empty())
+    {
+        for (int i=0; i < enemies.size(); i++) // niet '<=' anders plek pointer te ver
+        {
+            spritesVector.push_back(enemies[i].get());
         }
 
-    spritesVector.push_back(bulletHori.get());
+    }
 
+   // for (int i=0; i<2 ; i++){
+        spritesVector.push_back(bulletHori.get());
+   // }
 
     return { spritesVector };
 }
@@ -53,10 +62,6 @@ std::vector<Sprite *> scene_Chapter1::sprites() {
  * Other entities/enemies/boss are defined per scene class.
  */
 void scene_Chapter1::load() {
-    /*
-     * Bij de palletten moeten de kleuren in 16bit formaat opgemaakt worden.
-     * De tiles en map mogen 32bit opgemaakt/omgezet worden.
-     * */
 
     /*
      * Background handler
@@ -82,8 +87,6 @@ void scene_Chapter1::load() {
      */
     foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(sharedPal, sizeof(sharedPal)));
 
-    TimeBetweenShots = 15;
-
 
     player = builder
             .withData(PlayerFullTiles, sizeof(PlayerFullTiles))
@@ -92,18 +95,16 @@ void scene_Chapter1::load() {
             //.withVelocity(1, 1)
             .withinBounds()
             .buildPtr();
-
     bulletVerti = builder
             .withData(BulletVertiTiles, sizeof(BulletVertiTiles))
             .withSize(SIZE_16_16)
-            .withLocation(112, 72)
+            .withLocation(-32, -32)
             .buildPtr();
     bulletHori = builder
             .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
             .withSize(SIZE_16_16)
             .withLocation(-32, -32)
             .buildPtr();
-
 
 
     //TextStream::instance().setText("PRESS START", 3, 8);
@@ -117,19 +118,20 @@ void scene_Chapter1::load() {
 
 
 /*
- * Need a function that when pressing left or right, the player also rotates slightly into the direction he is pressing.
- * pressing left, rotates the player down or up depending on the angle he is in.
+ * Player movement & key reads
  *
  */
 void scene_Chapter1::tick(u16 keys) {
+
     if (ShotCooldown != 0) {ShotCooldown--;}
     //TextStream::instance().setText(engine->getTimer()->to_string(), 18, 1);
     if(pressingAorB && !((keys & KEY_A) || (keys & KEY_B))) {
         //engine->getTimer()->toggle();
         pressingAorB = false;
     }
-    int OldBulletSize;
+
     OldBulletSize = Bullets.size();
+
     if(keys & KEY_START)
     {
         if(!engine->isTransitioning()) {
@@ -142,32 +144,28 @@ void scene_Chapter1::tick(u16 keys) {
 
     }
 
-
-
-
     if(keys & allkeycheck)
     {
+
         if (keys & KEY_A)
         {
             if (Bullets.size()<=10 && ShotCooldown == 0){shoot();}
-            //player->animateToFrame(staticPlayerModel);
-            player->flipHorizontally(boolPlayerFlipHori);
         }
 
         playerPosX = player->getX();
         playerPosY = player->getY();
 
-        if (movetimer >= 7)
+        if (moveTimerPlayer >= 7)
         {
             moveflag = !moveflag;
-            movetimer = 0;
+            moveTimerPlayer = 0;
         }
 
         switch(keys)
         {
             case KEY_LEFT:  if(moveflag)player->animateToFrame(7);
                             else player->animateToFrame(8);
-                            staticPlayerModel = 7;
+                            staticPlayerModel = 8;
                             boolPlayerFlipHori = true;
                             if (scrollX > 0 && playerPosX <= 112) { scrollX -= 1; player->setVelocity(0,0);}
                             else player->setVelocity(-1, 0);
@@ -177,93 +175,179 @@ void scene_Chapter1::tick(u16 keys) {
 
             case KEY_RIGHT: if(moveflag)player->animateToFrame(7);
                             else player->animateToFrame(8);
-                            boolPlayerFlipHori = false;
                             staticPlayerModel = 7;
+                            boolPlayerFlipHori = false;
                             if (scrollX < 260 && playerPosX >= 112) { scrollX += 1; player->setVelocity(0,0);}
-                            else player->setVelocity(1, 0);
+                            else player->setVelocity(+1, 0);
                             playerfacingx = 1;
                             playerfacingy = 0;
                             break;
 
             case KEY_DOWN:  if(moveflag)player->animateToFrame(3);
                             else player->animateToFrame(2);
-                            boolPlayerFlipHori = false;
                             staticPlayerModel = 1;
                             if (scrollY < 340 && playerPosY >= 72) { scrollY += 1; player->setVelocity(0,0);}
-                            else  player->setVelocity(0, 1);
+                            else  player->setVelocity(0, +1);
                             playerfacingx = 0;
                             playerfacingy = 1;
                             break;
 
-            case KEY_UP:    playerfacingx = 0;
+            case KEY_UP:    if(moveflag)player->animateToFrame(5);
+                            else player->animateToFrame(6);
+                            staticPlayerModel = 4;
+                            if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
+                            else player->setVelocity(0, -1);
+                            playerfacingx = 0;
                             playerfacingy = -1;
-                            ShotCooldown=0;
-                            if(moveflag)player->animateToFrame(5);
-                            else player->animateToFrame(6);
-                            boolPlayerFlipHori = false;
-                            staticPlayerModel = 4;
-                            if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
-                            else player->setVelocity(0, -1);
                             break;
-            /*
-            case KEY_A:     if (Bullets.size()<=10 && ShotCooldown == 0){shoot();}
-                            break;
-            */
-            /*case KEY_UP:    if(moveflag)player->animateToFrame(5);
-                            else player->animateToFrame(6);
-                            player->flipHorizontally(false);
-                            staticPlayerModel = 4;
-                            if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
-                            else player->setVelocity(0, -1);
-                            break;
-                            */
 
         }
-        player->flipHorizontally(boolPlayerFlipHori);
-        movetimer++;
-        moving = true;
+        boolPlayerMoving = true;
+        moveTimerPlayer++;
+        moveTimerEnemy++;
     }
     else
     {
         player->setVelocity(0, 0);
         rotation = 0;
         player->animateToFrame(staticPlayerModel);
-
-        moving = false;
-        boolPlayerShootHori = false;
-        boolPlayerShootVerti = false;
+        boolPlayerMoving = false;
     }
+    player->flipHorizontally(boolPlayerFlipHori);
+    UpdateGame();
+    bg_C1.get()->scroll(scrollX, scrollY);
 
-    //rotation += rotationDiff;
-    //enemy.get()->rotate(rotation);
-    //player.get()->rotate(rotation);
+};
 
+void scene_Chapter1::UpdateGame() {
 
     OffScreen();
     if (OldBulletSize != Bullets.size())
     {
         engine.get()->updateSpritesInScene();
     }
-    bg_C1.get()->scroll(scrollX, scrollY);
-//    UpdateGame();
 
-};
+    if ( currentEnemies <= totalEnemies)
+    {
+        if (boolPlayerMoving && (spawnerTime >= 20) ) //         if (boolPlayerMoving && spawnerTime <= 5000) //
+        {
+            enemies.push_back( builder
+                                       .withData(EnemyFullTiles, sizeof(EnemyFullTiles))
+                                       .withSize(SIZE_16_16)
+                                               //.withVelocity(1, 1)
+                                       .withLocation(rand()%GBA_SCREEN_WIDTH +1, rand()%GBA_SCREEN_HEIGHT+1)
+                                       .withVelocity(rand() % 1, rand() % 1)
+                                       .buildPtr());
+            spawnerTime = 0;
+            currentEnemies++;
+            engine->updateSpritesInScene();
+        }
+        else spawnerTime++;
+    }
+
+    if (!enemies.empty() )
+    {
+        UpdateMovements();
+    }
+
+}
+
+void scene_Chapter1::UpdateMovements(){
+
+    enemyPosX = enemies[loopEnemies]->getX();
+    enemyPosY = enemies[loopEnemies]->getY();
+    if (moveTimerEnemy >= 2)
+    {
+        moveflagEnemy = !moveflagEnemy;
+        moveTimerEnemy = 0;
+    }
+
+    if ( (enemyPosX == playerPosX) || (enemyPosY == playerPosY) )
+    {
+        //enemyshoot();
+        enemies[loopEnemies]->animateToFrame(staticEnemyModel);
+    }
+    else
+    {
+        trackingY = abs (enemyPosY - playerPosY);
+        trackingX = abs (enemyPosX - playerPosX);
+
+        if (trackingX < trackingY)
+        {
+            if (enemyPosX > playerPosX)
+            {
+                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(7);
+                else enemies[loopEnemies]->animateToFrame(8);
+                staticEnemyModel = 7;
+                enemies[loopEnemies]->flipHorizontally(true);
+                enemyPosX--;
+            }
+            else
+            {
+                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(7);
+                else enemies[loopEnemies]->animateToFrame(8);
+                staticEnemyModel = 8;
+                enemies[loopEnemies]->flipHorizontally(false);
+                enemyPosX++;
+            }
+        }
+        else if (trackingY < trackingX)
+        {
+            if (enemyPosY < playerPosY)
+            {
+                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(3);
+                else enemies[loopEnemies]->animateToFrame(2);
+                staticEnemyModel = 1;
+                enemyPosY++;
+            }
+            else
+            {
+                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(5);
+                else enemies[loopEnemies]->animateToFrame(6);
+                staticEnemyModel = 4;
+                enemyPosY--;
+            }
+        }
+       moveTimerEnemy++;
+    }
+
+    if (oldScrollX == scrollX){
+        enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY);
+    }
+    if (oldScrollX > scrollX){
+        enemies[loopEnemies]->moveTo(enemyPosX+enemyMoveSpeed, enemyPosY);
+    }
+    else if (oldScrollX < scrollX){
+        enemies[loopEnemies]->moveTo(enemyPosX-enemyMoveSpeed, enemyPosY);
+    }
+    if (oldScrollY > scrollY){
+        enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY+enemyMoveSpeed);
+    }
+    else if (oldScrollY < scrollY){
+        enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY-enemyMoveSpeed);
+    }
+
+    if (loopEnemies < enemies.size() -1 )
+    {
+        loopEnemies++;
+    }
+    else loopEnemies = 0;
+
+    oldScrollX = scrollX;
+    oldScrollY = scrollY;
+}
+
 void scene_Chapter1::shoot() {
     Bullets.push_back(builder
-                                                .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
-                                                .withSize(SIZE_16_16)
-                                                .withLocation(player->getX(), player->getY())
-                                                .withVelocity(playerfacingx*2,playerfacingy*2)
-                                                .buildPtr());
+                              .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
+                              .withSize(SIZE_16_16)
+                              .withLocation(player->getX(), player->getY())
+                              .withVelocity(playerfacingx*2,playerfacingy*2)
+                              .buildPtr());
     TextStream::instance().setText(std::string("bullets on screen: ") + std::to_string(Bullets.size()), 1, 1);
     ShotCooldown = TimeBetweenShots;
 }
 void scene_Chapter1::OffScreen() {
-/*
-    Bullets.erase(
-            std::remove_if(Bullets.begin(), Bullets.end(), [](std::unique_ptr<Sprite> &s) { return s->isOffScreen(); }),
-            Bullets.end());
-*/
 
     for (int i = 0 ; i<Bullets.size();i++)
     {
@@ -271,38 +355,7 @@ void scene_Chapter1::OffScreen() {
         {
             Bullets.erase(std::remove(Bullets.begin(), Bullets.end(), Bullets[i]));
             engine.get()->updateSpritesInScene();
-//            engine->update();
+           //engine->update();
         }
     }
-
-
-}
-
-void scene_Chapter1::UpdateGame() {
-
-    if ( currentEnemies <= totalEnemies)
-    {
-        if (moving && spawnerTime <= 5000)
-        {
-            enemies.push_back( builder
-                                       .withData(EnemyFullTiles, sizeof(EnemyFullTiles))
-                                       .withSize(SIZE_16_16)
-                                               //.withVelocity(1, 1)
-                                       .withLocation(rand() % player->getX(), rand() % player->getY())
-                                       .withVelocity(rand() % 1, rand() % 1)
-                                       .buildPtr());
-            spawnerTime = 0;
-            currentEnemies++;
-            updateSprites = true;
-        }
-        spawnerTime++;
-    }
-
-
-    /*
-    if (updateSprites) {
-        engine->updateSpritesInScene();
-        updateSprites = false;
-    }
-    */
 }

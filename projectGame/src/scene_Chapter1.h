@@ -10,17 +10,13 @@
 #include <libgba-sprite-engine/sprites/affine_sprite.h>
 #include <libgba-sprite-engine/background/background.h>
 
-//define Xlimit 500
-//define Ylimit 500
-
-//define screenwidth
-//define screenheight
+#define Xlimit 500
+#define Ylimit 500
 
 class scene_Chapter1 : public Scene {
 
 private:
     std::vector<Sprite *> spritesVector;
-    std::unique_ptr<Sprite>  enemy;
     std::vector<std::unique_ptr<Sprite >> enemies;
     std::vector<std::unique_ptr<Sprite >> Bullets;
     std::unique_ptr<Sprite>  player;
@@ -33,43 +29,54 @@ private:
     std::unique_ptr<Background> bg_C3;
     bool pressingAorB = false;
     bool updateSprites;
-    bool moving;
-
 
     int scrollX, scrollY;
     int rotation;
     int rotationDiff = 128;
 
     //Enemie vars
-    int spawnerTime = 0;
-    int totalEnemies = 10;
+    int spawnerTime;
+    int totalEnemies = 4;
     int currentEnemies = 0;
+    int enemyPosX;
+    int enemyPosY;
+    int moveTimerEnemy;
+    bool moveflagEnemy = false;
+    int loopEnemies;
+    int trackingY;
+    int trackingX;
+    short int staticEnemyModel = 7;
+    int oldScrollX, oldScrollY;
+    short int enemyMoveSpeed = 3;
+    std::deque<VECTOR> trackCoords;
 
     //Player vars
-    int TimeBetweenShots;
-    int ShotCooldown = 0;
     int playerPosX;
     int playerPosY;
+    bool boolPlayerMoving;
     int playerfacingx = 1;
     int playerfacingy = 1;
+    int TimeBetweenShots = 15;
+    int ShotCooldown = 0;
     short int staticPlayerModel = 7;
     bool moveflag = false;
-    short int movetimer = 0;
-    bool boolPlayerShootHori, boolPlayerShootVerti;
-    bool boolPlayerFlipHori, boolPlayerflipVerti;
-    const void* BulletData;
+    short int moveTimerPlayer = 0;
+    bool boolPlayerFlipHori;
+    int OldBulletSize;
 
 
 public:
+
     std::vector<Sprite *> sprites() override;
     std::vector<Background *> backgrounds() override;
-    /*
-     * Need func to update a vector of sprites with bullets going off the current bounds of the player on the map
-     */
+
     void UpdateGame();
-    void shoot();
-    scene_Chapter1(std::shared_ptr<GBAEngine> engine) : Scene(engine), rotation(0), rotationDiff(128), scrollX(0), scrollY(0) {}
+    void UpdateMovements();
     void OffScreen();
+    void shoot();
+
+    scene_Chapter1(std::shared_ptr<GBAEngine> engine) : Scene(engine), rotation(0), rotationDiff(128), scrollX(0), scrollY(0) {}
+
     void load() override;
     void tick(u16 keys) override;
 
