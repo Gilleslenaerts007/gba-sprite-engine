@@ -28,14 +28,24 @@ std::vector<Sprite *> scene_Chapter1::sprites() {
     }
      */
     spritesVector = {};
-    spritesVector.push_back(player.get());
+    spritesVector.push_back(player1->getSprite());
 
-    if (Bullets.size() != 0){
-        for (int i=0; i < Bullets.size(); i++) // niet '<=' anders plek pointer te ver
+    if (!BulletsVerti.empty()){
+        for (int i=0; i < BulletsVerti.size(); i++) // niet '<=' anders plek pointer te ver
         {
-            spritesVector.push_back(Bullets[i].get());
+            //BulletsVerti[i]->flipVertically(true);
+            spritesVector.push_back(BulletsVerti[i].get());
         }
     }
+    if (!BulletsHori.empty())
+    {
+        for (int i=0; i < BulletsHori.size(); i++) // niet '<=' anders plek pointer te ver
+        {
+            //BulletsHori[i]->flipHorizontally(true);
+            spritesVector.push_back(BulletsHori[i].get());
+        }
+    }
+
     if(!enemies.empty())
     {
         for (int i=0; i < enemies.size(); i++) // niet '<=' anders plek pointer te ver
@@ -45,9 +55,16 @@ std::vector<Sprite *> scene_Chapter1::sprites() {
 
     }
 
-   // for (int i=0; i<2 ; i++){
-        spritesVector.push_back(bulletHori.get());
-   // }
+    /*
+    if(!Offbulletscreen.empty())
+    {
+        for (int i=0; i < Offbulletscreen.size(); i++) // niet '<=' anders plek pointer te ver
+        {
+            spritesVector.push_back(Offbulletscreen[i].get());
+        }
+    }
+     */
+    spritesVector.push_back(Offbulletscreen.get());
 
     return { spritesVector };
 }
@@ -70,7 +87,7 @@ void scene_Chapter1::load() {
         MAPLAYOUT_64X32
         MAPLAYOUT_64X64
      */
-    REG_DISPCNT = DCNT_MODE0 | DCNT_OBJ | DCNT_OBJ_1D | DCNT_BG0 | DCNT_BG1; //Als dit aanstaat kan bg index al vanaf 0. zoniet van index 1.
+    //REG_DISPCNT = DCNT_MODE0 | DCNT_OBJ | DCNT_OBJ_1D | DCNT_BG0 | DCNT_BG1; //Als dit aanstaat kan bg index al vanaf 0. zoniet van index 1.
     backgroundPalette = std::unique_ptr<BackgroundPaletteManager>(new BackgroundPaletteManager(bg500Pal, sizeof(bg500Pal)));
     bg_C1 = std::unique_ptr<Background>(new Background(0, bg500Tiles, sizeof(bg500Tiles), bg500Map, sizeof(bg500Map), MAPLAYOUT_64X64));
     bg_C1.get()->useMapScreenBlock(16); //data size van tiles dus 16
@@ -80,31 +97,18 @@ void scene_Chapter1::load() {
     bg_C2.get()->useMapScreenBlock(16);
      */
 
-
     /*
      * Sprite handler
      * Width x length
      */
     foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(sharedPal, sizeof(sharedPal)));
-
-
-    player = builder
-            .withData(PlayerFullTiles, sizeof(PlayerFullTiles))
-            .withSize(SIZE_16_16)
-            .withLocation(112, 72)
-            //.withVelocity(1, 1)
-            .withinBounds()
-            .buildPtr();
-    bulletVerti = builder
-            .withData(BulletVertiTiles, sizeof(BulletVertiTiles))
-            .withSize(SIZE_16_16)
-            .withLocation(-32, -32)
-            .buildPtr();
-    bulletHori = builder
-            .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
-            .withSize(SIZE_16_16)
-            .withLocation(-32, -32)
-            .buildPtr();
+    player *player1 = (new player(builder, 112, 72, 100, 2) );
+    Offbulletscreen = builder
+                                          .withData(BulletVertiTiles, sizeof(BulletVertiTiles))
+                                          .withSize(SIZE_16_16)
+                                          .withLocation(-32, -32)
+                                          .withVelocity(0,0)
+                                          .buildPtr();
 
 
     //TextStream::instance().setText("PRESS START", 3, 8);
@@ -124,13 +128,15 @@ void scene_Chapter1::load() {
 void scene_Chapter1::tick(u16 keys) {
 
     if (ShotCooldown != 0) {ShotCooldown--;}
+    OffScreen();
+
     //TextStream::instance().setText(engine->getTimer()->to_string(), 18, 1);
     if(pressingAorB && !((keys & KEY_A) || (keys & KEY_B))) {
         //engine->getTimer()->toggle();
         pressingAorB = false;
     }
 
-    OldBulletSize = Bullets.size();
+    OldBulletSize = BulletsHori.size() + BulletsVerti.size();
 
     if(keys & KEY_START)
     {
@@ -144,88 +150,37 @@ void scene_Chapter1::tick(u16 keys) {
 
     }
 
-    if(keys & allkeycheck)
+    if (keys & KEY_A)
     {
-
-        if (keys & KEY_A)
-        {
-            if (Bullets.size()<=10 && ShotCooldown == 0){shoot();}
-        }
-
-        playerPosX = player->getX();
-        playerPosY = player->getY();
-
-        if (moveTimerPlayer >= 7)
-        {
-            moveflag = !moveflag;
-            moveTimerPlayer = 0;
-        }
-
-        switch(keys)
-        {
-            case KEY_LEFT:  if(moveflag)player->animateToFrame(7);
-                            else player->animateToFrame(8);
-                            staticPlayerModel = 8;
-                            boolPlayerFlipHori = true;
-                            if (scrollX > 0 && playerPosX <= 112) { scrollX -= 1; player->setVelocity(0,0);}
-                            else player->setVelocity(-1, 0);
-                            playerfacingx = -1;
-                            playerfacingy = 0;
-                            break;
-
-            case KEY_RIGHT: if(moveflag)player->animateToFrame(7);
-                            else player->animateToFrame(8);
-                            staticPlayerModel = 7;
-                            boolPlayerFlipHori = false;
-                            if (scrollX < 260 && playerPosX >= 112) { scrollX += 1; player->setVelocity(0,0);}
-                            else player->setVelocity(+1, 0);
-                            playerfacingx = 1;
-                            playerfacingy = 0;
-                            break;
-
-            case KEY_DOWN:  if(moveflag)player->animateToFrame(3);
-                            else player->animateToFrame(2);
-                            staticPlayerModel = 1;
-                            if (scrollY < 340 && playerPosY >= 72) { scrollY += 1; player->setVelocity(0,0);}
-                            else  player->setVelocity(0, +1);
-                            playerfacingx = 0;
-                            playerfacingy = 1;
-                            break;
-
-            case KEY_UP:    if(moveflag)player->animateToFrame(5);
-                            else player->animateToFrame(6);
-                            staticPlayerModel = 4;
-                            if (scrollY > 0 && playerPosY <= 72) { scrollY -= 1; player->setVelocity(0,0);}
-                            else player->setVelocity(0, -1);
-                            playerfacingx = 0;
-                            playerfacingy = -1;
-                            break;
-
-        }
-        boolPlayerMoving = true;
-        moveTimerPlayer++;
-        moveTimerEnemy++;
+        if (playerfacingx != 0 && OldBulletSize<=7 && ShotCooldown == 0) {shootSide();}
+        else if (playerfacingy != 0 && OldBulletSize<=7 && ShotCooldown == 0) {shootUp();}
+        //engine.get()->updateSpritesInScene();
     }
-    else
-    {
-        player->setVelocity(0, 0);
-        rotation = 0;
-        player->animateToFrame(staticPlayerModel);
-        boolPlayerMoving = false;
-    }
-    player->flipHorizontally(boolPlayerFlipHori);
+
+    player1->movePlayer(keys, getScene());
+    moveTimerEnemy++;
+
+    /* Have to udpate engine first before flipping models otherwise fucks the sprites?
+     * For the enemies vector, need to make a class of enemy with hp/dmg/flip/...
+     * With this class change the flip bool in the updatemovement();
+     * Then with a for loop check the bool flip with enemyvector[i].flip if yes flip that one in the vector.
+     *
+     * */
+    engine.get()->updateSpritesInScene();
     UpdateGame();
+    if (playerfacingx == -1) BulletsHori[BulletsHori.size()-1]->flipHorizontally(true);
+    else if(playerfacingx == 1) BulletsHori[BulletsHori.size()-1]->flipHorizontally(false);
+    if (playerfacingy == -1)  BulletsVerti[BulletsVerti.size()-1]->flipVertically(false);
+    else if(playerfacingy == 1) BulletsVerti[BulletsVerti.size()-1]->flipVertically(true);
+    player1->setPlayerParameters();
     bg_C1.get()->scroll(scrollX, scrollY);
 
 };
 
 void scene_Chapter1::UpdateGame() {
 
-    OffScreen();
-    if (OldBulletSize != Bullets.size())
-    {
-        engine.get()->updateSpritesInScene();
-    }
+
+    //COLLISION
 
     if ( currentEnemies <= totalEnemies)
     {
@@ -250,22 +205,29 @@ void scene_Chapter1::UpdateGame() {
         UpdateMovements();
     }
 
+    /*
+    if (OldBulletSize != BulletsHori.size()+BulletsVerti.size())
+    {
+        engine.get()->updateSpritesInScene();
+    }
+     ¨*/
+
 }
 
 void scene_Chapter1::UpdateMovements(){
 
     enemyPosX = enemies[loopEnemies]->getX();
     enemyPosY = enemies[loopEnemies]->getY();
-    if (moveTimerEnemy >= 2)
+    if (moveTimerEnemy >= 4)
     {
         moveflagEnemy = !moveflagEnemy;
         moveTimerEnemy = 0;
     }
-
     if ( (enemyPosX == playerPosX) || (enemyPosY == playerPosY) )
     {
         //enemyshoot();
         enemies[loopEnemies]->animateToFrame(staticEnemyModel);
+        //enemies[loopEnemies]->flipHorizontally(enemyfacingx);
     }
     else
     {
@@ -279,7 +241,10 @@ void scene_Chapter1::UpdateMovements(){
                 if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(7);
                 else enemies[loopEnemies]->animateToFrame(8);
                 staticEnemyModel = 7;
+                enemyfacingx = true;
+                engine.get()->updateSpritesInScene();
                 enemies[loopEnemies]->flipHorizontally(true);
+                //enemies[loopEnemies]->flipHorizontally(true);
                 enemyPosX--;
             }
             else
@@ -287,7 +252,8 @@ void scene_Chapter1::UpdateMovements(){
                 if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(7);
                 else enemies[loopEnemies]->animateToFrame(8);
                 staticEnemyModel = 8;
-                enemies[loopEnemies]->flipHorizontally(false);
+                enemyfacingx = false;
+                //enemies[loopEnemies]->flipHorizontally(false);
                 enemyPosX++;
             }
         }
@@ -315,9 +281,11 @@ void scene_Chapter1::UpdateMovements(){
         enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY);
     }
     if (oldScrollX > scrollX){
+        enemies[loopEnemies]->flipHorizontally(false);
         enemies[loopEnemies]->moveTo(enemyPosX+enemyMoveSpeed, enemyPosY);
     }
     else if (oldScrollX < scrollX){
+        enemies[loopEnemies]->flipHorizontally(true);
         enemies[loopEnemies]->moveTo(enemyPosX-enemyMoveSpeed, enemyPosY);
     }
     if (oldScrollY > scrollY){
@@ -333,29 +301,52 @@ void scene_Chapter1::UpdateMovements(){
     }
     else loopEnemies = 0;
 
+    //engine.get()->updateSpritesInScene();
     oldScrollX = scrollX;
     oldScrollY = scrollY;
 }
 
-void scene_Chapter1::shoot() {
-    Bullets.push_back(builder
+void scene_Chapter1::shootUp() {
+    BulletsVerti.push_back(builder
+                              .withData(BulletVertiTiles, sizeof(BulletVertiTiles))
+                              .withSize(SIZE_16_16)
+                              .withLocation(player->getX(), player->getY())
+                              .withVelocity(playerfacingx*2,playerfacingy*2)
+                              .buildPtr());
+    //TextStream::instance().setText(std::string("bullets on screen: ") + std::to_string(Bullets.size()), 1, 1);
+    // //engine.get()->updateSpritesInScene();
+    ShotCooldown = TimeBetweenShots;
+}
+
+void scene_Chapter1::shootSide() {
+    BulletsHori.push_back(builder
                               .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
                               .withSize(SIZE_16_16)
                               .withLocation(player->getX(), player->getY())
                               .withVelocity(playerfacingx*2,playerfacingy*2)
                               .buildPtr());
-    TextStream::instance().setText(std::string("bullets on screen: ") + std::to_string(Bullets.size()), 1, 1);
+    //engine.get()->updateSpritesInScene();
     ShotCooldown = TimeBetweenShots;
 }
 void scene_Chapter1::OffScreen() {
 
-    for (int i = 0 ; i<Bullets.size();i++)
+    for (int i = 0 ; i<BulletsHori.size();i++)
     {
-        if (Bullets[i]->isOffScreen())
+        if (BulletsHori[i]->isOffScreen())
         {
-            Bullets.erase(std::remove(Bullets.begin(), Bullets.end(), Bullets[i]));
+            BulletsHori.erase(std::remove(BulletsHori.begin(), BulletsHori.end(), BulletsHori[i]));
             engine.get()->updateSpritesInScene();
            //engine->update();
+        }
+    }
+
+    for (int i = 0 ; i<BulletsVerti.size();i++)
+    {
+        if (BulletsVerti[i]->isOffScreen())
+        {
+            BulletsVerti.erase(std::remove(BulletsVerti.begin(), BulletsVerti.end(), BulletsVerti[i]));
+            engine.get()->updateSpritesInScene();
+            //engine->update();
         }
     }
 }
