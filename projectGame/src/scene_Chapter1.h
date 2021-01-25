@@ -15,15 +15,15 @@
 #define Ylimit 500
 
 class scene_Chapter1 : public Scene {
-
 private:
+    //Game vars
     std::vector<Sprite *> spritesVector;
     std::vector<std::unique_ptr<Sprite >> enemies;
     std::unique_ptr<Sprite> Offbulletscreen;
     std::vector<std::unique_ptr<Sprite >> BulletsHori;
     std::vector<std::unique_ptr<Sprite >> BulletsVerti;
 
-    std::unique_ptr<player> player1;
+    std::shared_ptr<Player> player1;
     SpriteBuilder<Sprite> builder;
     SpriteBuilder<AffineSprite> affineBuilder;
 
@@ -33,9 +33,9 @@ private:
     bool pressingAorB = false;
     bool updateSprites;
 
-    int scrollX, scrollY;
     int rotation;
     int rotationDiff = 128;
+    int scrollX, scrollY;
 
     //Enemie vars
     int spawnerTime;
@@ -49,23 +49,15 @@ private:
     int trackingY;
     int trackingX;
     bool enemyfacingx = 0;
-    //int enemyfacingy = 0;
     short int staticEnemyModel = 7;
     int oldScrollX, oldScrollY;
     short int enemyMoveSpeed = 3;
 
     //Player vars
-    int playerPosX;
-    int playerPosY;
-    bool boolPlayerMoving;
     int playerfacingx = 0;
     int playerfacingy = 0;
     int TimeBetweenShots = 20;
     int ShotCooldown = 0;
-    short int staticPlayerModel = 7;
-    bool moveflag = false;
-    short int moveTimerPlayer = 0;
-    bool boolPlayerFlipHori;
     int OldBulletSize;
 
 

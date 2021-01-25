@@ -9,18 +9,16 @@
 #include <libgba-sprite-engine/sprites/sprite_builder.h>
 #include <libgba-sprite-engine/gba/tonc_types.h>
 #include <libgba-sprite-engine/gba_engine.h>
-#include "scene_Chapter1.h"
 
-class player {
+class Player {
 private:
-    friend class scene_Chapter1;
+    //friend class scene_Chapter1;
     //std::shared_ptr<Weapon> ak;
     int hp;
     int ammo;
     int potion;
     int FirstAid;
     char playerID;
-    std::unique_ptr<Sprite> spriteplayer;
 
     int playerPosX;
     int playerPosY;
@@ -33,13 +31,14 @@ private:
     short int ShotCooldown = 0;
     short int staticPlayerModel = 7;
     bool moveflag = false;
-    short int moveTimerPlayer = 0;
+    int moveTimerPlayer = 0;
     bool boolFlipHori;
     short int OldBulletSize;
 
 
 public:
 
+    std::unique_ptr<Sprite> spriteplayer;
     //Global player getters
     int getAmmo() const {return ammo;}
     int getPotions() const {return potion;}
@@ -47,6 +46,8 @@ public:
     int getXcoord() const {return spriteplayer->getX();}
     int getYcoord() const {return spriteplayer->getY();}
     bool getPlayerMoving() const {return this->boolMoving;}
+    short int getPlayerFaceX() const {return this->playerfacingx;}
+    short int getPlayerFaceY() const {return this->playerfacingy;}
 
     Sprite * getSprite() const { return spriteplayer.get();}
     //std::shared_ptr<Weapon> getWeapon();
@@ -58,10 +59,11 @@ public:
     //void setWeapon(std::shared_ptr<Weapon> gun);
 
     //actions
-    void movePlayer(u16 input,scene_Chapter1 * scene);
+    void movePlayer(u16 input, int *scrX, int *scrY);
 
     //constructor
-    player(SpriteBuilder<Sprite> builder, int x, int y,int hp, char spriteID);
+    Player(SpriteBuilder<Sprite> builder, int x, int y,int hp, char spriteID);
+    void setBuilder(SpriteBuilder<Sprite> builder, int x, int y);
 
 };
 

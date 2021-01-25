@@ -4,31 +4,32 @@
 
 #include "player.h"
 #include "pixel_player.h"
+#include <libgba-sprite-engine/gba_engine.h>
 #include "scene_Chapter1.h"
 
 
-player::player(SpriteBuilder<Sprite> builder, int x, int y, int hp, char spriteID) {
+Player::Player(SpriteBuilder<Sprite> builder, int x, int y, int hp, char spriteID) {
     this->spriteplayer = builder
             .withSize(SIZE_16_16)
             .withLocation(x, y)
             .withData(PlayerFullTiles, sizeof(PlayerFullTiles))
+            .withinBounds()
             .buildPtr();
     this->playerID = spriteID;
 }
-void player::movePlayer(u16 input, scene_Chapter1* scene) {
+void Player::movePlayer(u16 input, int *scrX, int *scrY) {
+
+    if (moveTimerPlayer >= 7)
+    {
+        moveflag = !moveflag;
+        moveTimerPlayer = 0;
+    }
 
     if(input & allkeycheck)
     {
-        if (moveTimerPlayer >= 7)
-        {
-            moveflag = !moveflag;
-            moveTimerPlayer = 0;
-        }
 
         this->playerPosX = spriteplayer->getX();
         this->playerPosY = spriteplayer->getY();
-        boolMoving = true;
-        moveTimerPlayer++;
 
         switch (input) {
             case KEY_LEFT:
@@ -36,12 +37,16 @@ void player::movePlayer(u16 input, scene_Chapter1* scene) {
                 else spriteplayer->animateToFrame(8);
                 staticPlayerModel = 8;
                 boolFlipHori = true;
-                if (scene->getScrollXMap() > 0 && playerPosX <= 112) {
-                    scene->setScrollMap(scene->getScrollYMap(),scene->getScrollXMap()-1);
+                //scroll X-1
+                if (*scrX > 0 && playerPosX <= 112) {
+                    *scrX = *scrX-1;
                     speedX = 0;
                     speedY = 0;
                 }
-                else spriteplayer->setVelocity(-1, 0);
+                else{
+                    speedX = -1;
+                    speedY = 0;
+                }
                 playerfacingx = -1;
                 playerfacingy = 0;
                 break;
@@ -51,12 +56,16 @@ void player::movePlayer(u16 input, scene_Chapter1* scene) {
                 else spriteplayer->animateToFrame(8);
                 staticPlayerModel = 7;
                 boolFlipHori = false;
-                if (scene->getScrollXMap() < 260 && playerPosX >= 112) {
-                    scene->setScrollMap(scene->getScrollYMap(),scene->getScrollXMap()+1);
+                //scroll X+1
+                if (*scrX < 260 && playerPosX >= 112) {
+                    *scrX = *scrX+1;
                     speedX = 0;
                     speedY = 0;
                 }
-                else spriteplayer->setVelocity(+1, 0);
+                else{
+                    speedX = +1;
+                    speedY = 0;
+                }
                 playerfacingx = 1;
                 playerfacingy = 0;
                 break;
@@ -65,12 +74,16 @@ void player::movePlayer(u16 input, scene_Chapter1* scene) {
                 if (moveflag)spriteplayer->animateToFrame(3);
                 else spriteplayer->animateToFrame(2);
                 staticPlayerModel = 1;
-                if (scene->getScrollYMap() < 340 && playerPosY >= 72) {
-                    scene->setScrollMap(scene->getScrollYMap()+1,scene->getScrollXMap());;
+                //scroll Y+1
+                if (*scrY < 340 && playerPosY >= 72) {
+                    *scrY = *scrY+1;
                     speedX = 0;
                     speedY = 0;
                 }
-                else spriteplayer->setVelocity(0, +1);
+                else{
+                    speedX = 0;
+                    speedY = +1;
+                }
                 playerfacingx = 0;
                 playerfacingy = 1;
                 break;
@@ -79,8 +92,9 @@ void player::movePlayer(u16 input, scene_Chapter1* scene) {
                 if (moveflag)spriteplayer->animateToFrame(5);
                 else spriteplayer->animateToFrame(6);
                 staticPlayerModel = 4;
-                if (scene->getScrollYMap() > 0 && playerPosY <= 72) {
-                    scene->setScrollMap(scene->getScrollYMap()-1,scene->getScrollXMap());
+                //scroll Y-1
+                if (*scrY > 0 && playerPosY <= 72) {
+                    *scrY = *scrY-1;
                     speedX = 0;
                     speedY = 0;
                 }
@@ -101,20 +115,31 @@ void player::movePlayer(u16 input, scene_Chapter1* scene) {
                 break;
 
         }
+        boolMoving = true;
     }
     else
     {
         boolMoving = false;
         this->spriteplayer->setVelocity(0, 0);
+        speedX = 0;
+        speedY = 0;
         this->spriteplayer->animateToFrame(staticPlayerModel);
         this->spriteplayer->flipHorizontally(boolFlipHori);
     }
 
-
+    moveTimerPlayer++;
 }
 
-void player::setPlayerParameters(){
+void Player::setPlayerParameters(){
     this->spriteplayer->setVelocity(speedX, speedY);
-    this->spriteplayer->animateToFrame(staticPlayerModel);
+    //this->spriteplayer->animateToFrame(staticPlayerModel);
     this->spriteplayer->flipHorizontally(boolFlipHori);
+}
+
+void Player::setBuilder(SpriteBuilder<Sprite> builder, int x, int y) {
+    this->spriteplayer = builder
+            .withSize(SIZE_16_16)
+            .withLocation(x, y)
+            .withData(PlayerFullTiles, sizeof(PlayerFullTiles))
+            .buildPtr();
 }
