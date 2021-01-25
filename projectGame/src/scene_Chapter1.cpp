@@ -45,9 +45,7 @@ std::vector<Sprite *> scene_Chapter1::sprites() {
 
     }
 
-   // for (int i=0; i<2 ; i++){
-        spritesVector.push_back(bulletHori.get());
-   // }
+   spritesVector.push_back(bulletHori.get());
 
     return { spritesVector };
 }
@@ -347,11 +345,7 @@ void scene_Chapter1::shoot() {
                               .withVelocity(playerfacingx*2,playerfacingy*2)
                               .buildPtr());
     TextStream::instance().setText(std::string("bullets on screen: ") + std::to_string(Bullets.size()), 1, 1);
-    if (playerfacingx == -1)
-    {
-        Bullets[1]->flipHorizontally(TRUE);
-        engine->updateSpritesInScene();
-    }
+
     ShotCooldown = TimeBetweenShots;
 }
 void scene_Chapter1::OffScreen() {
