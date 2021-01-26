@@ -12,9 +12,9 @@
 #include "Bullet.h"
 class Player {
 private:
-    //friend class scene_Chapter1;
-    //std::shared_ptr<Weapon> ak;
-    int hp;
+
+    int lives;
+    int kills = 0;
     int ammo;
     int potion;
     int FirstAid;
@@ -48,21 +48,23 @@ public:
     bool getPlayerMoving() const {return this->boolMoving;}
     short int getPlayerFaceX() const {return this->playerfacingx;}
     short int getPlayerFaceY() const {return this->playerfacingy;}
+    short int getPlayerLives() const {return this->lives;}
+    int getPlayerKills() const {return this->kills;}
 
     Sprite * getSprite() const { return spriteplayer.get();}
-    //std::shared_ptr<Weapon> getWeapon();
 
     //global player setters
-    //void setBuilder(SpriteBuilder<Sprite> builder, int x, int y);
-    bool playerShoot();
     void setPlayerParameters();//int speedX, int speedY);//, bool boolFlipHori, bool boolFlipVerti, int frameNumber);
+    void addPlayerKill() {this->kills++;}
+    void resetPlayerKill() {this->kills=0;}
     //void setWeapon(std::shared_ptr<Weapon> gun);
 
     //actions
     void movePlayer(u16 input, int *scrX, int *scrY);
     void Shoot(SpriteBuilder<Sprite> builder,std::vector<Bullet*> *DestVector,std::unique_ptr<Sprite> *SpriteTemp);
+
     //constructor
-    Player(SpriteBuilder<Sprite> builder, int x, int y,int hp, char spriteID);
+    Player(SpriteBuilder<Sprite> builder, int x, int y, int lives, char spriteID);
     void setBuilder(SpriteBuilder<Sprite> builder, int x, int y);
 
 };

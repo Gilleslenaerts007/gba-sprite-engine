@@ -11,33 +11,35 @@
 #include <libgba-sprite-engine/background/background.h>
 #include "player.h"
 #include "Bullet.h"
+#include "enemy.h"
 #define Xlimit 500
 #define Ylimit 500
 
 class scene_Chapter1 : public Scene {
 private:
     //Game vars
-    std::vector<Sprite *> spritesVector;
-    std::vector<std::unique_ptr<Sprite >> enemies;
-    std::unique_ptr<Sprite> Offbulletscreen;
-    std::unique_ptr<Sprite> Offbulletscreen2;
     std::vector<std::unique_ptr<Sprite >> BulletsHori;
     std::vector<std::unique_ptr<Sprite >> BulletsVerti;
-    std::vector<std::unique_ptr<Sprite>> Bullets;
-    std::vector<Bullet*> BulletsVector;
-    std::shared_ptr<Player> player1;
+
     SpriteBuilder<Sprite> builder;
-    SpriteBuilder<AffineSprite> affineBuilder;
+    std::shared_ptr<Player> player1;
+    std::vector<enemy*> enemiesvector;
+    std::vector<Bullet*> BulletsVector;
+    std::unique_ptr<Sprite> Offbulletscreen;
+    std::unique_ptr<Sprite> Offbulletscreen2;
+    std::vector<Sprite *> spritesVector;
+
 
     std::unique_ptr<Background> bg_C1;
-    std::unique_ptr<Background> bg_C2;
-    std::unique_ptr<Background> bg_C3;
+
     bool pressingAorB = false;
-    bool updateSprites;
 
     int rotation;
     int rotationDiff = 128;
+
     int scrollX, scrollY;
+    bool update = FALSE ;
+    bool pause = false ;
 
     //Enemie vars
     int spawnerTime;
@@ -80,8 +82,7 @@ public:
     void UpdateGame();
     void UpdateMovements();
     void OffScreen();
-    void shootUp();
-    void shootSide();
+    void UpgradeLevel();
 
     void load() override;
     void tick(u16 keys) override;

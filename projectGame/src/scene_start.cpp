@@ -11,10 +11,8 @@
 #include <libgba-sprite-engine/effects/fade_out_scene.h>
 #include "scene_start.h"
 #include "scene_Chapter1.h"
-#include "pixel_menu.h"
-#include "manneke.h"
-#include "bg1.h"
-//#include "sample_sound.h"
+#include "bg_Menu.h"
+#include "pixel_player.h"
 
 /*
  * Current background on the scene?
@@ -27,7 +25,9 @@ std::vector<Background *> scene_start::backgrounds() {
  * Current sprites on the scene?
  */
 std::vector<Sprite *> scene_start::sprites() {
-    return { menu_picker.get() };
+    spritesVector.push_back(menu_char.get());
+    spritesVector.push_back(menu_enemy.get());
+    return { spritesVector };
 }
 
 /*
@@ -44,8 +44,8 @@ void scene_start::load() {
      * Bij de palletten moeten de kleuren in 16bit formaat opgemaakt worden.
      * De tiles en map mogen 32bit opgemaakt/omgezet worden.
      * */
-    foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(piskelPal, sizeof(piskelPal)));
-    backgroundPalette = std::unique_ptr<BackgroundPaletteManager>(new BackgroundPaletteManager(testmapPal, sizeof(testmapPal)));
+    foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(sharedPal, sizeof(sharedPal)));
+    backgroundPalette = std::unique_ptr<BackgroundPaletteManager>(new BackgroundPaletteManager(menuPal, sizeof(menuPal)));
 
     SpriteBuilder<Sprite> builder;
 
@@ -53,16 +53,25 @@ void scene_start::load() {
  * Width x length
  */
 
-    menu_picker = builder
-            .withData(piskelTiles, sizeof(piskelTiles))
-            .withSize(SIZE_32_32)
-            .withLocation(100, 50)
+    menu_char = builder
+            .withData(PlayerFullTiles, sizeof(PlayerFullTiles))
+            .withSize(SIZE_16_16)
+            .withLocation(207, 142)
             .withinBounds()
             .buildPtr();
+    menu_enemy = builder
+               .withData(EnemyFullTiles, sizeof(EnemyFullTiles))
+               .withSize(SIZE_16_16)
+               .withLocation(182, 142)
+               .withVelocity(rand() % 1, rand() % 1)
+               .buildPtr();
 
-    TextStream::instance().setText("PRESS START", 3, 8);
+    TextStream::instance().setText("Kill as much bandits ", 17, 0);
+    TextStream::instance().setText("as possible !", 18, 0);
+    TextStream::instance().setText("when ready PRESS START", 19, 0);
 
-    bg = std::unique_ptr<Background>(new Background(2, testmapTiles, sizeof(testmapTiles), testmapMap, sizeof(testmapMap)));
+    REG_DISPCNT = DCNT_MODE0 | DCNT_OBJ | DCNT_OBJ_1D | DCNT_BG0 | DCNT_BG1;
+    bg = std::unique_ptr<Background>(new Background(1, menuTiles, sizeof(menuTiles), menuMap, sizeof(menuMap)));
     bg.get()->useMapScreenBlock(16);
     //engine->getTimer()->start();
     //engine->enqueueMusic(zelda_music_16K_mono, zelda_music_16K_mono_bytes);
@@ -89,22 +98,6 @@ void scene_start::tick(u16 keys) {
             //MUSIC?//engine->enqueueSound(zelda_secret_16K_mono, zelda_secret_16K_mono_bytes);
             TextStream::instance() << "entered: starting next scene";
             engine->transitionIntoScene(new scene_Chapter1(engine), new FadeOutScene(2));
-        }
-    }
-    else if(keys & KEY_UP)
-    {
-        if (menu_picker->getY() >= 40 && delay >= 10)
-        {
-            delay=0;
-            menu_picker->moveTo(menu_picker->getX(), menu_picker->getY() - 10);
-        }
-    }
-    else if(keys & KEY_DOWN)
-    {
-        if (menu_picker->getY() <= 80 && delay >= 10)
-        {
-            delay=0;
-            menu_picker->moveTo(menu_picker->getX(), menu_picker->getY() + 10);
         }
     }
 
