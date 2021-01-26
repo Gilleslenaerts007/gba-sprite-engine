@@ -19,7 +19,7 @@ Player::Player(SpriteBuilder<Sprite> builder, int x, int y, int lives, char spri
 void  Player::Shoot(SpriteBuilder<Sprite> builder, std::vector<Bullet*> *DestVector, std::unique_ptr<Sprite> *SpriteTemp) {
     if (this->shotcooldown == 0)
     {
-        DestVector->push_back(new Bullet(builder , SpriteTemp, this->playerPosX,this->playerPosY,this->playerfacingx,this->playerfacingy,FALSE));
+        DestVector->push_back(new Bullet(builder , SpriteTemp, this->playerPosX,this->playerPosY,this->playerfacingx,this->playerfacingy,this->playerfacingx==-1 || this->playerfacingy == 1));
         this->shotcooldown = this->timebetweenshots;
     }
 }
@@ -141,12 +141,4 @@ void Player::setPlayerParameters(){
     this->spriteplayer->setVelocity(speedX, speedY);
     //this->spriteplayer->animateToFrame(staticPlayerModel);
     this->spriteplayer->flipHorizontally(boolFlipHori);
-}
-
-void Player::setBuilder(SpriteBuilder<Sprite> builder, int x, int y) {
-    this->spriteplayer = builder
-            .withSize(SIZE_16_16)
-            .withLocation(x, y)
-            .withData(PlayerFullTiles, sizeof(PlayerFullTiles))
-            .buildPtr();
 }

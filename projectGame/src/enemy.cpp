@@ -15,3 +15,8 @@ enemy::enemy(SpriteBuilder<Sprite> builder,bool flipped) {
             .buildPtr();
     this->flipped = flipped ;
 }
+void enemy::correctFlip() {
+    //this->flipped = flipped;
+    //this->spriteplayer->animateToFrame(staticPlayerModel);
+    this->enemysprite->flipHorizontally(flipped);
+}

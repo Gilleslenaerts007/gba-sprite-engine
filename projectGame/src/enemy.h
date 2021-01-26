@@ -13,8 +13,7 @@
 class enemy {
 private:
 public:
-
-    bool ToBeRemoved = FALSE;
+    void correctFlip();
     bool flipped;
     std::unique_ptr<Sprite> enemysprite;
     enemy(SpriteBuilder<Sprite> builder,bool flipped);

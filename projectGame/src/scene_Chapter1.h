@@ -22,7 +22,7 @@ private:
     std::vector<std::unique_ptr<Sprite >> BulletsVerti;
 
     SpriteBuilder<Sprite> builder;
-    std::shared_ptr<Player> player1;
+    Player* player1;
     std::vector<enemy*> enemiesvector;
     std::vector<Bullet*> BulletsVector;
     std::unique_ptr<Sprite> Offbulletscreen;
