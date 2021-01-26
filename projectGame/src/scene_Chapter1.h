@@ -10,6 +10,9 @@
 #include <libgba-sprite-engine/sprites/affine_sprite.h>
 #include <libgba-sprite-engine/background/background.h>
 #include "player.h"
+#include "Entity.h"
+#include "enemies_level1.h"
+
 
 #define Xlimit 500
 #define Ylimit 500
@@ -23,7 +26,16 @@ private:
     std::vector<std::unique_ptr<Sprite >> BulletsHori;
     std::vector<std::unique_ptr<Sprite >> BulletsVerti;
 
-    std::shared_ptr<Player> player1;
+    //std::shared_ptr<Entity> playerptr;
+    //std::shared_ptr<Player> player1;
+    Player *player1;
+    Entity *playerptr;
+    /*
+    d *derived = new d();
+    b *bptr = derived;
+    delete bptr;
+     */
+
     SpriteBuilder<Sprite> builder;
     SpriteBuilder<AffineSprite> affineBuilder;
 

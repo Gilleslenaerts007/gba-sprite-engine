@@ -102,7 +102,8 @@ void scene_Chapter1::load() {
      * Width x length
      */
     foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(sharedPal, sizeof(sharedPal)));
-    player1 = std::shared_ptr<Player>(new Player(builder, 112, 72, 100, 2) );
+    player1 = (new Player(builder, 112, 72, 100, 2) );
+    playerptr = player1;
     //player player1(builder, 112, 72, 100, 2);
     Offbulletscreen = builder
                                           .withData(BulletVertiTiles, sizeof(BulletVertiTiles))
@@ -153,8 +154,8 @@ void scene_Chapter1::tick(u16 keys) {
 
     if (keys & KEY_A)
     {
-        if (player1->getPlayerFaceX() != 0 && OldBulletSize<=7 && ShotCooldown == 0) {shootSide();}
-        else if (player1->getPlayerFaceY() != 0 && OldBulletSize<=7 && ShotCooldown == 0) {shootUp();}
+        if (player1->getFaceX() != 0 && OldBulletSize<=7 && ShotCooldown == 0) {shootSide();}
+        else if (player1->getFaceY() != 0 && OldBulletSize<=7 && ShotCooldown == 0) {shootUp();}
         //engine.get()->updateSpritesInScene();
     }
 
@@ -171,11 +172,11 @@ void scene_Chapter1::tick(u16 keys) {
      * */
     engine.get()->updateSpritesInScene();
     UpdateGame();
-    if (player1->getPlayerFaceX() == -1) BulletsHori[BulletsHori.size()-1]->flipHorizontally(true);
-    else if(player1->getPlayerFaceX() == 1) BulletsHori[BulletsHori.size()-1]->flipHorizontally(false);
-    if (player1->getPlayerFaceY() == -1)  BulletsVerti[BulletsVerti.size()-1]->flipVertically(false);
-    else if(player1->getPlayerFaceY() == 1) BulletsVerti[BulletsVerti.size()-1]->flipVertically(true);
-    player1->setPlayerParameters();
+    if (player1->getFaceX() == -1) BulletsHori[BulletsHori.size()-1]->flipHorizontally(true);
+    else if(player1->getFaceX() == 1) BulletsHori[BulletsHori.size()-1]->flipHorizontally(false);
+    if (player1->getFaceY() == -1)  BulletsVerti[BulletsVerti.size()-1]->flipVertically(false);
+    else if(player1->getFaceY() == 1) BulletsVerti[BulletsVerti.size()-1]->flipVertically(true);
+    player1->setParameters();
     bg_C1.get()->scroll(scrollX, scrollY);
 
 };
@@ -187,7 +188,7 @@ void scene_Chapter1::UpdateGame() {
 
     if ( currentEnemies <= totalEnemies)
     {
-        if (player1->getPlayerMoving() && (spawnerTime >= 20) ) //         if (boolPlayerMoving && spawnerTime <= 5000) //
+        if (player1->getMoving() && (spawnerTime >= 20) ) //         if (boolPlayerMoving && spawnerTime <= 5000) //
         {
             enemies.push_back( builder
                                        .withData(EnemyFullTiles, sizeof(EnemyFullTiles))
@@ -314,7 +315,7 @@ void scene_Chapter1::shootUp() {
                               .withData(BulletVertiTiles, sizeof(BulletVertiTiles))
                               .withSize(SIZE_16_16)
                               .withLocation(player1->getXcoord(), player1->getYcoord())
-                              .withVelocity(player1->getPlayerFaceX()*2,player1->getPlayerFaceY()*2)
+                              .withVelocity(player1->getFaceX()*2,player1->getFaceY()*2)
                               .buildPtr());
     //TextStream::instance().setText(std::string("bullets on screen: ") + std::to_string(Bullets.size()), 1, 1);
     // //engine.get()->updateSpritesInScene();
@@ -323,10 +324,10 @@ void scene_Chapter1::shootUp() {
 
 void scene_Chapter1::shootSide() {
     BulletsHori.push_back(builder
-                              .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
+                               .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
                               .withSize(SIZE_16_16)
                               .withLocation(player1->getXcoord(), player1->getYcoord())
-                              .withVelocity(player1->getPlayerFaceX()*2,player1->getPlayerFaceY()*2)
+                              .withVelocity(player1->getFaceX()*2,player1->getFaceY()*2)
                               .buildPtr());
     //engine.get()->updateSpritesInScene();
     ShotCooldown = TimeBetweenShots;

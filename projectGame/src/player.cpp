@@ -9,36 +9,36 @@
 
 
 Player::Player(SpriteBuilder<Sprite> builder, int x, int y, int hp, char spriteID) {
-    this->spriteplayer = builder
+    this->spriteEntity = builder
             .withSize(SIZE_16_16)
             .withLocation(x, y)
             .withData(PlayerFullTiles, sizeof(PlayerFullTiles))
             .withinBounds()
             .buildPtr();
-    this->playerID = spriteID;
+    this->ID = spriteID;
 }
 void Player::movePlayer(u16 input, int *scrX, int *scrY) {
 
-    if (moveTimerPlayer >= 7)
+    if (this->moveTimer >= 7)
     {
-        moveflag = !moveflag;
-        moveTimerPlayer = 0;
+        this->moveflag = !this->moveflag;
+        this->moveTimer = 0;
     }
 
     if(input & allkeycheck)
     {
 
-        this->playerPosX = spriteplayer->getX();
-        this->playerPosY = spriteplayer->getY();
+        this->PosX = this->spriteEntity->getX();
+        this->PosY = this->spriteEntity->getY();
 
         switch (input) {
             case KEY_LEFT:
-                if (moveflag)spriteplayer->animateToFrame(7);
-                else spriteplayer->animateToFrame(8);
-                staticPlayerModel = 8;
+                if (moveflag)this->spriteEntity->animateToFrame(7);
+                else this->spriteEntity->animateToFrame(8);
+                this->staticModel = 8;
                 boolFlipHori = true;
                 //scroll X-1
-                if (*scrX > 0 && playerPosX <= 112) {
+                if (*scrX > 0 && this->PosX <= 112) {
                     *scrX = *scrX-1;
                     speedX = 0;
                     speedY = 0;
@@ -47,17 +47,17 @@ void Player::movePlayer(u16 input, int *scrX, int *scrY) {
                     speedX = -1;
                     speedY = 0;
                 }
-                playerfacingx = -1;
-                playerfacingy = 0;
+                this->facingx = -1;
+                this->facingy = 0;
                 break;
 
             case KEY_RIGHT:
-                if (moveflag)spriteplayer->animateToFrame(7);
-                else spriteplayer->animateToFrame(8);
-                staticPlayerModel = 7;
+                if (moveflag)this->spriteEntity->animateToFrame(7);
+                else this->spriteEntity->animateToFrame(8);
+                this->staticModel = 7;
                 boolFlipHori = false;
                 //scroll X+1
-                if (*scrX < 260 && playerPosX >= 112) {
+                if (*scrX < 260 && this->PosX >= 112) {
                     *scrX = *scrX+1;
                     speedX = 0;
                     speedY = 0;
@@ -66,16 +66,16 @@ void Player::movePlayer(u16 input, int *scrX, int *scrY) {
                     speedX = +1;
                     speedY = 0;
                 }
-                playerfacingx = 1;
-                playerfacingy = 0;
+                this->facingx = 1;
+                this->facingy = 0;
                 break;
 
             case KEY_DOWN:
-                if (moveflag)spriteplayer->animateToFrame(3);
-                else spriteplayer->animateToFrame(2);
-                staticPlayerModel = 1;
+                if (moveflag)this->spriteEntity->animateToFrame(3);
+                else this->spriteEntity->animateToFrame(2);
+                this->staticModel = 1;
                 //scroll Y+1
-                if (*scrY < 340 && playerPosY >= 72) {
+                if (*scrY < 340 && this->PosY >= 72) {
                     *scrY = *scrY+1;
                     speedX = 0;
                     speedY = 0;
@@ -84,16 +84,16 @@ void Player::movePlayer(u16 input, int *scrX, int *scrY) {
                     speedX = 0;
                     speedY = +1;
                 }
-                playerfacingx = 0;
-                playerfacingy = 1;
+                this->facingx = 0;
+                this->facingy = 1;
                 break;
 
             case KEY_UP:
-                if (moveflag)spriteplayer->animateToFrame(5);
-                else spriteplayer->animateToFrame(6);
-                staticPlayerModel = 4;
+                if (moveflag)this->spriteEntity->animateToFrame(5);
+                else this->spriteEntity->animateToFrame(6);
+                this->staticModel = 4;
                 //scroll Y-1
-                if (*scrY > 0 && playerPosY <= 72) {
+                if (*scrY > 0 && this->PosY <= 72) {
                     *scrY = *scrY-1;
                     speedX = 0;
                     speedY = 0;
@@ -103,43 +103,30 @@ void Player::movePlayer(u16 input, int *scrX, int *scrY) {
                     speedY = -1;
                 }
 
-                playerfacingx = 0;
-                playerfacingy = -1;
+                this->facingx = 0;
+                this->facingy = -1;
                 break;
 
             default:
                 speedX = 0;
                 speedY = 0;
-                staticPlayerModel = staticPlayerModel;
+                this->staticModel = staticModel;
                 boolMoving = false;
                 break;
 
         }
-        boolMoving = true;
+        this->boolMoving = true;
     }
     else
     {
-        boolMoving = false;
-        this->spriteplayer->setVelocity(0, 0);
-        speedX = 0;
-        speedY = 0;
-        this->spriteplayer->animateToFrame(staticPlayerModel);
-        this->spriteplayer->flipHorizontally(boolFlipHori);
+        this->boolMoving = false;
+        this->spriteEntity->setVelocity(0, 0);
+        this->speedX = 0;
+        this->speedY = 0;
+        this->spriteEntity->animateToFrame(this->staticModel);
+        this->spriteEntity->flipHorizontally(this->boolFlipHori);
     }
 
-    moveTimerPlayer++;
+    this->moveTimer++;
 }
 
-void Player::setPlayerParameters(){
-    this->spriteplayer->setVelocity(speedX, speedY);
-    //this->spriteplayer->animateToFrame(staticPlayerModel);
-    this->spriteplayer->flipHorizontally(boolFlipHori);
-}
-
-void Player::setBuilder(SpriteBuilder<Sprite> builder, int x, int y) {
-    this->spriteplayer = builder
-            .withSize(SIZE_16_16)
-            .withLocation(x, y)
-            .withData(PlayerFullTiles, sizeof(PlayerFullTiles))
-            .buildPtr();
-}
