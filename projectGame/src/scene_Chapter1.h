@@ -11,6 +11,7 @@
 #include <libgba-sprite-engine/background/background.h>
 #include "player.h"
 #include "Bullet.h"
+#include "enemy.h"
 #define Xlimit 500
 #define Ylimit 500
 
@@ -19,6 +20,7 @@ private:
     //Game vars
     std::vector<Sprite *> spritesVector;
     std::vector<std::unique_ptr<Sprite >> enemies;
+    std::vector<enemy*> enemiesvector;
     std::unique_ptr<Sprite> Offbulletscreen;
     std::unique_ptr<Sprite> Offbulletscreen2;
     std::vector<std::unique_ptr<Sprite >> BulletsHori;
@@ -54,17 +56,16 @@ private:
     short int staticEnemyModel = 7;
     int oldScrollX, oldScrollY;
     short int enemyMoveSpeed = 3;
-
     //Player vars
     int playerfacingx = 0;
     int playerfacingy = 0;
     int TimeBetweenShots = 20;
     int ShotCooldown = 0;
     int OldBulletSize;
-
+    bool update = FALSE ;
 
 public:
-
+    std::vector<int> enemystoremove;
     std::vector<Sprite *> sprites() override;
     std::vector<Background *> backgrounds() override;
 

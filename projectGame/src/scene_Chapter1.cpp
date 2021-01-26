@@ -36,22 +36,15 @@ std::vector<Sprite *> scene_Chapter1::sprites() {
             spritesVector.push_back(BulletsVector[i]->BulletSprite.get());
         }
     }
-    if (!BulletsVerti.empty()){
-        for (int i=0; i < BulletsVerti.size(); i++) // niet '<=' anders plek pointer te ver
+    if (!enemiesvector.empty())
+    {
+        for (int i=0; i < enemiesvector.size(); i++) // niet '<=' anders plek pointer te ver
         {
             //BulletsVerti[i]->flipVertically(true);
-            spritesVector.push_back(BulletsVerti[i].get());
+            spritesVector.push_back(enemiesvector[i]->enemysprite.get());
         }
     }
-    if (!BulletsHori.empty())
-    {
-        for (int i=0; i < BulletsHori.size(); i++) // niet '<=' anders plek pointer te ver
-        {
-            //BulletsHori[i]->flipHorizontally(true);
-            spritesVector.push_back(BulletsHori[i].get());
-        }
-    }
-
+    /*
     if(!enemies.empty())
     {
         for (int i=0; i < enemies.size(); i++) // niet '<=' anders plek pointer te ver
@@ -60,6 +53,7 @@ std::vector<Sprite *> scene_Chapter1::sprites() {
         }
 
     }
+    */
 
     /*
     if(!Offbulletscreen.empty())
@@ -142,6 +136,7 @@ void scene_Chapter1::tick(u16 keys) {
 
     if (player1->shotcooldown != 0) { player1->shotcooldown --; }
     OffScreen();
+    TextStream::instance().setText(std::to_string(enemies.size()) + std::string(" enemies in game"), 5, 1);
 
     //TextStream::instance().setText(engine->getTimer()->to_string(), 18, 1);
     if(pressingAorB && !((keys & KEY_A) || (keys & KEY_B))) {
@@ -167,9 +162,11 @@ void scene_Chapter1::tick(u16 keys) {
     {
         if (player1->getPlayerFaceX() != 0 )
         {
+            update = TRUE;
             player1->Shoot(builder,&BulletsVector,&Offbulletscreen);
         }
         else {
+            update = TRUE;
             player1->Shoot(builder,&BulletsVector,&Offbulletscreen2);
         }
 
@@ -190,8 +187,15 @@ void scene_Chapter1::tick(u16 keys) {
      * Then with a for loop check the bool flip with enemyvector[i].flip if yes flip that one in the vector.
      *
      * */
-    engine.get()->updateSpritesInScene();
+
+
+    if (update){
+        engine.get()->updateSpritesInScene();
+        ~update;
+    }
+
     UpdateGame();
+
     if (player1->getPlayerFaceX() == -1) BulletsHori[BulletsHori.size()-1]->flipHorizontally(true);
     else if(player1->getPlayerFaceX() == 1) BulletsHori[BulletsHori.size()-1]->flipHorizontally(false);
     if (player1->getPlayerFaceY() == -1)  BulletsVerti[BulletsVerti.size()-1]->flipVertically(false);
@@ -204,22 +208,13 @@ void scene_Chapter1::tick(u16 keys) {
 void scene_Chapter1::UpdateGame() {
 
 
-    //COLLISION
-    for (int i = 0 ; i < BulletsVector.size() ; i++){
-        for (int x = 0 ; x < enemies.size();x++)
-        {
-            if (BulletsVector[i]->BulletSprite->collidesWith(*enemies[x]))
-            {
-                enemies.erase(std::remove(enemies.begin(), enemies.end(), enemies[x]));
-                //engine.get()->updateSpritesInScene();
-            }
-        }
-    }
 
-    if ( currentEnemies <= totalEnemies)
+
+    if ( enemiesvector.size() <= totalEnemies)
     {
         if (player1->getPlayerMoving() && (spawnerTime >= 20) ) //         if (boolPlayerMoving && spawnerTime <= 5000) //
         {
+            enemiesvector.push_back(new enemy(builder,FALSE));
             enemies.push_back( builder
                                        .withData(EnemyFullTiles, sizeof(EnemyFullTiles))
                                        .withSize(SIZE_16_16)
@@ -229,7 +224,8 @@ void scene_Chapter1::UpdateGame() {
                                        .buildPtr());
             spawnerTime = 0;
             currentEnemies++;
-            engine->updateSpritesInScene();
+            update = TRUE;
+            //engine->updateSpritesInScene();
         }
         else spawnerTime++;
     }
@@ -238,149 +234,111 @@ void scene_Chapter1::UpdateGame() {
     {
         UpdateMovements();
     }
-
-    /*
-    if (OldBulletSize != BulletsHori.size()+BulletsVerti.size())
-    {
-        engine.get()->updateSpritesInScene();
+    //COLLISION
+    for (int i = 0 ; i < BulletsVector.size() ; i++){
+        for (int x = 0 ; x < enemiesvector.size(); x++)
+        {
+            if (BulletsVector[i]->BulletSprite->collidesWith(*enemiesvector[x]->enemysprite))
+            {   enemiesvector[x]->enemysprite->moveTo(-32,-32);
+                enemiesvector[x]->enemysprite->setVelocity(0,0);
+                BulletsVector[i]->BulletSprite->moveTo(-32,-32);
+                BulletsVector[i]->BulletSprite->setVelocity(0,0);
+                update = TRUE;
+                enemiesvector.erase(enemiesvector.begin()+x);
+                //enemies.resize(enemies.size()-1);
+                break;
+            }
+        }
     }
-     ¨*/
+
 
 }
 
 void scene_Chapter1::UpdateMovements(){
 
-    enemyPosX = enemies[loopEnemies]->getX();
-    enemyPosY = enemies[loopEnemies]->getY();
-    if (moveTimerEnemy >= 4)
-    {
+if (!enemiesvector.empty()) {
+    enemyPosX = enemiesvector[loopEnemies]->enemysprite->getX();
+    enemyPosY = enemiesvector[loopEnemies]->enemysprite->getY();
+    if (moveTimerEnemy >= 4) {
         moveflagEnemy = !moveflagEnemy;
         moveTimerEnemy = 0;
     }
-    if ( (enemyPosX == player1->getXcoord()) || (enemyPosY == player1->getYcoord()) )
-    {
+    if ((enemyPosX == player1->getXcoord()) || (enemyPosY == player1->getYcoord())) {
         //enemyshoot();
-        enemies[loopEnemies]->animateToFrame(staticEnemyModel);
+        enemiesvector[loopEnemies]->enemysprite->animateToFrame(staticEnemyModel);
         //enemies[loopEnemies]->flipHorizontally(enemyfacingx);
-    }
-    else
-    {
-        trackingY = abs (enemyPosY - player1->getYcoord());
-        trackingX = abs (enemyPosX - player1->getXcoord());
+    } else {
+        trackingY = abs(enemyPosY - player1->getYcoord());
+        trackingX = abs(enemyPosX - player1->getXcoord());
 
-        if (trackingX < trackingY)
-        {
-            if (enemyPosX > player1->getXcoord())
-            {
-                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(7);
-                else enemies[loopEnemies]->animateToFrame(8);
+        if (trackingX < trackingY) {
+            if (enemyPosX > player1->getXcoord()) {
+                if (moveflagEnemy)enemiesvector[loopEnemies]->enemysprite->animateToFrame(7);
+                else enemiesvector[loopEnemies]->enemysprite->animateToFrame(8);
                 staticEnemyModel = 7;
                 enemyfacingx = true;
-                engine.get()->updateSpritesInScene();
-                enemies[loopEnemies]->flipHorizontally(true);
+//                engine.get()->updateSpritesInScene();
+                enemiesvector[loopEnemies]->enemysprite->flipHorizontally(true);
                 //enemies[loopEnemies]->flipHorizontally(true);
                 enemyPosX--;
-            }
-            else
-            {
-                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(7);
-                else enemies[loopEnemies]->animateToFrame(8);
+            } else {
+                if (moveflagEnemy)enemiesvector[loopEnemies]->enemysprite->animateToFrame(7);
+                else enemiesvector[loopEnemies]->enemysprite->animateToFrame(8);
                 staticEnemyModel = 8;
                 enemyfacingx = false;
                 //enemies[loopEnemies]->flipHorizontally(false);
                 enemyPosX++;
             }
-        }
-        else if (trackingY < trackingX)
-        {
-            if (enemyPosY < player1->getYcoord())
-            {
-                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(3);
-                else enemies[loopEnemies]->animateToFrame(2);
+        } else if (trackingY < trackingX) {
+            if (enemyPosY < player1->getYcoord()) {
+                if (moveflagEnemy)enemiesvector[loopEnemies]->enemysprite->animateToFrame(3);
+                else enemiesvector[loopEnemies]->enemysprite->animateToFrame(2);
                 staticEnemyModel = 1;
                 enemyPosY++;
-            }
-            else
-            {
-                if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(5);
-                else enemies[loopEnemies]->animateToFrame(6);
+            } else {
+                if (moveflagEnemy)enemiesvector[loopEnemies]->enemysprite->animateToFrame(5);
+                else enemiesvector[loopEnemies]->enemysprite->animateToFrame(6);
                 staticEnemyModel = 4;
                 enemyPosY--;
             }
         }
-       moveTimerEnemy++;
+        moveTimerEnemy++;
     }
 
-    if (oldScrollX == scrollX){
-        enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY);
+    if (oldScrollX == scrollX) {
+        enemiesvector[loopEnemies]->enemysprite->moveTo(enemyPosX, enemyPosY);
     }
-    if (oldScrollX > scrollX){
-        enemies[loopEnemies]->flipHorizontally(false);
-        enemies[loopEnemies]->moveTo(enemyPosX+enemyMoveSpeed, enemyPosY);
+    if (oldScrollX > scrollX) {
+        enemiesvector[loopEnemies]->enemysprite->flipHorizontally(false);
+        enemiesvector[loopEnemies]->enemysprite->moveTo(enemyPosX + enemyMoveSpeed, enemyPosY);
+    } else if (oldScrollX < scrollX) {
+        enemiesvector[loopEnemies]->enemysprite->flipHorizontally(true);
+        enemiesvector[loopEnemies]->enemysprite->moveTo(enemyPosX - enemyMoveSpeed, enemyPosY);
     }
-    else if (oldScrollX < scrollX){
-        enemies[loopEnemies]->flipHorizontally(true);
-        enemies[loopEnemies]->moveTo(enemyPosX-enemyMoveSpeed, enemyPosY);
-    }
-    if (oldScrollY > scrollY){
-        enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY+enemyMoveSpeed);
-    }
-    else if (oldScrollY < scrollY){
-        enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY-enemyMoveSpeed);
+    if (oldScrollY > scrollY) {
+        enemiesvector[loopEnemies]->enemysprite->moveTo(enemyPosX, enemyPosY + enemyMoveSpeed);
+    } else if (oldScrollY < scrollY) {
+        enemiesvector[loopEnemies]->enemysprite->moveTo(enemyPosX, enemyPosY - enemyMoveSpeed);
     }
 
-    if (loopEnemies < enemies.size() -1 )
-    {
+    if (loopEnemies < enemiesvector.size() - 1) {
         loopEnemies++;
-    }
-    else loopEnemies = 0;
+    } else loopEnemies = 0;
 
     //engine.get()->updateSpritesInScene();
     oldScrollX = scrollX;
     oldScrollY = scrollY;
 }
+ }
 
-void scene_Chapter1::shootUp() {
-    BulletsVerti.push_back(builder
-                              .withData(BulletVertiTiles, sizeof(BulletVertiTiles))
-                              .withSize(SIZE_16_16)
-                              .withLocation(player1->getXcoord(), player1->getYcoord())
-                              .withVelocity(player1->getPlayerFaceX()*2,player1->getPlayerFaceY()*2)
-                              .buildPtr());
-    //TextStream::instance().setText(std::string("bullets on screen: ") + std::to_string(Bullets.size()), 1, 1);
-    // //engine.get()->updateSpritesInScene();
-    ShotCooldown = TimeBetweenShots;
-}
-
-void scene_Chapter1::shootSide() {
-    BulletsHori.push_back(builder
-                              .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
-                              .withSize(SIZE_16_16)
-                              .withLocation(player1->getXcoord(), player1->getYcoord())
-                              .withVelocity(player1->getPlayerFaceX()*2,player1->getPlayerFaceY()*2)
-                              .buildPtr());
-    //engine.get()->updateSpritesInScene();
-    ShotCooldown = TimeBetweenShots;
-}
 void scene_Chapter1::OffScreen() {
 
-    for (int i = 0 ; i<BulletsVector.size();i++)
-    {
-        if (BulletsVector[i]->BulletSprite->isOffScreen())
-        {
+    for (int i = 0; i < BulletsVector.size(); i++) {
+        if (BulletsVector[i]->BulletSprite->isOffScreen()) {
             BulletsVector.erase(std::remove(BulletsVector.begin(), BulletsVector.end(), BulletsVector[i]));
-            engine.get()->updateSpritesInScene();
-           //engine->update();
-        }
-    }
-
-    for (int i = 0 ; i<BulletsVerti.size();i++)
-    {
-        if (BulletsVerti[i]->isOffScreen())
-        {
-            BulletsVerti.erase(std::remove(BulletsVerti.begin(), BulletsVerti.end(), BulletsVerti[i]));
-            engine.get()->updateSpritesInScene();
+//            engine.get()->updateSpritesInScene();
             //engine->update();
+            update = TRUE;
         }
     }
 }
