@@ -10,3 +10,7 @@ Bullet::Bullet(SpriteBuilder<Sprite> builder,std::unique_ptr<Sprite> *source ,in
             .buildWithDataOf(*source->get());
     this->flipped = flipped ;
 }
+void Bullet::correctFlip() {
+    this->BulletSprite->flipHorizontally(flipped);
+    this->BulletSprite->flipVertically(flipped);
+}

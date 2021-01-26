@@ -52,7 +52,6 @@ private:
     int loopEnemies;
     int trackingY;
     int trackingX;
-    bool enemyfacingx = 0;
     short int staticEnemyModel = 7;
     int oldScrollX, oldScrollY;
     short int enemyMoveSpeed = 3;

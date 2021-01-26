@@ -6,7 +6,8 @@
 #include <libgba-sprite-engine/background/text_stream.h>
 #include <libgba-sprite-engine/gba/tonc_memdef.h>
 #include <libgba-sprite-engine/gba_engine.h>
-
+#include <libgba-sprite-engine/effects/fade_out_scene.h>
+#include "scene_death.h"
 #include "scene_Chapter1.h"
 #include "pixel_player.h"
 #include "pixel_bullets.h"
@@ -39,6 +40,7 @@ std::vector<Sprite *> scene_Chapter1::sprites() {
         }
     }
     spritesVector.push_back(Offbulletscreen.get());
+    spritesVector.push_back(Offbulletscreen2.get());
 
     return { spritesVector };
 }
@@ -76,7 +78,7 @@ void scene_Chapter1::load() {
                                           .withVelocity(0,0)
                                           .buildPtr();
     Offbulletscreen2 = builder
-                                          .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
+                                          .withData(BulletVertiTiles, sizeof(BulletVertiTiles))
                                           .withSize(SIZE_16_16)
                                           .withLocation(-32, -32)
                                           .withVelocity(0,0)
@@ -151,8 +153,25 @@ void scene_Chapter1::tick(u16 keys) {
         if (player1->getPlayerFaceY() == -1)  BulletsVerti[BulletsVerti.size()-1]->flipVertically(false);
         else if(player1->getPlayerFaceY() == 1) BulletsVerti[BulletsVerti.size()-1]->flipVertically(true);
         player1->setPlayerParameters();
+        for (int i = 0 ; i < enemiesvector.size();i++)
+        {
+            enemiesvector[i]->correctFlip();
+        }
+        for (int i = 0 ; i < BulletsVector.size();i++)
+        {
+            BulletsVector[i]->correctFlip();
+        }
         bg_C1.get()->scroll(scrollX, scrollY);
     }
+    if (player1->lives == 0)
+    {
+        if(!engine->isTransitioning()) {
+            //MUSIC?//engine->enqueueSound(zelda_secret_16K_mono, zelda_secret_16K_mono_bytes);
+            TextStream::instance() << "You're dying";
+            engine->transitionIntoScene(new scene_death(engine), new FadeOutScene(2));
+        }
+    }
+
 
 }
 
@@ -194,6 +213,14 @@ void scene_Chapter1::UpdateGame() {
             }
         }
     }
+    for (int i = 0; i<enemiesvector.size(); i++)
+    {
+        if (enemiesvector[i]->enemysprite->collidesWith(*player1->spriteplayer))
+        {
+            enemiesvector.erase(enemiesvector.begin()+i);
+            player1->lives--;
+        }
+    }
 
     if (player1->getPlayerKills() > 10){
         UpgradeLevel();
@@ -211,10 +238,45 @@ void scene_Chapter1::UpdateMovements(){
             moveflagEnemy = !moveflagEnemy;
             moveTimerEnemy = 0;
         }
-        if ((enemyPosX == player1->getXcoord()) || (enemyPosY == player1->getYcoord())) {
-            //enemyshoot();
-            enemiesvector[loopEnemies]->enemysprite->animateToFrame(staticEnemyModel);
-        } else {
+        if (enemyPosX == player1->getXcoord())
+        {
+            if (enemyPosY < player1->getYcoord())
+            {
+                if (moveflagEnemy)enemiesvector[loopEnemies]->enemysprite->animateToFrame(3);
+                else enemiesvector[loopEnemies]->enemysprite->animateToFrame(2);
+                staticEnemyModel = 1;
+                enemyPosY++;
+            }
+            else
+            {
+                if (moveflagEnemy)enemiesvector[loopEnemies]->enemysprite->animateToFrame(5);
+                else enemiesvector[loopEnemies]->enemysprite->animateToFrame(6);
+                staticEnemyModel = 4;
+                enemyPosY--;
+            }
+
+        }
+        else if (enemyPosY == player1->getYcoord())
+        {
+            if (enemyPosX < player1->getXcoord())
+            {
+                if (moveflagEnemy)enemiesvector[loopEnemies]->enemysprite->animateToFrame(7);
+                else enemiesvector[loopEnemies]->enemysprite->animateToFrame(8);
+                staticEnemyModel = 8;
+                enemiesvector[loopEnemies]->flipped = FALSE;
+                enemyPosX++;
+            }
+            else
+            {
+                if (moveflagEnemy)enemiesvector[loopEnemies]->enemysprite->animateToFrame(7);
+                else enemiesvector[loopEnemies]->enemysprite->animateToFrame(8);
+                staticEnemyModel = 7;
+                enemiesvector[loopEnemies]->flipped = TRUE;
+                enemiesvector[loopEnemies]->enemysprite->flipHorizontally(true);
+                enemyPosX--;
+            }
+        }
+        else {
             trackingY = abs(enemyPosY - player1->getYcoord());
             trackingX = abs(enemyPosX - player1->getXcoord());
 
@@ -223,16 +285,17 @@ void scene_Chapter1::UpdateMovements(){
                     if (moveflagEnemy)enemiesvector[loopEnemies]->enemysprite->animateToFrame(7);
                     else enemiesvector[loopEnemies]->enemysprite->animateToFrame(8);
                     staticEnemyModel = 7;
-                    enemyfacingx = true;
+                    enemiesvector[loopEnemies]->flipped = TRUE;
                     enemiesvector[loopEnemies]->enemysprite->flipHorizontally(true);
                     enemyPosX--;
                 } else {
                     if (moveflagEnemy)enemiesvector[loopEnemies]->enemysprite->animateToFrame(7);
                     else enemiesvector[loopEnemies]->enemysprite->animateToFrame(8);
                     staticEnemyModel = 8;
-                    enemyfacingx = false;
+                    enemiesvector[loopEnemies]->flipped = FALSE ;
                     enemyPosX++;
                 }
+
             } else if (trackingY < trackingX) {
                 if (enemyPosY < player1->getYcoord()) {
                     if (moveflagEnemy)enemiesvector[loopEnemies]->enemysprite->animateToFrame(3);
@@ -253,11 +316,11 @@ void scene_Chapter1::UpdateMovements(){
             enemiesvector[loopEnemies]->enemysprite->moveTo(enemyPosX, enemyPosY);
         }
         if (oldScrollX > scrollX) {
-            enemiesvector[loopEnemies]->enemysprite->flipHorizontally(false);
             enemiesvector[loopEnemies]->enemysprite->moveTo(enemyPosX + enemyMoveSpeed, enemyPosY);
+            enemiesvector[loopEnemies]->enemysprite->flipHorizontally(false);
         } else if (oldScrollX < scrollX) {
-            enemiesvector[loopEnemies]->enemysprite->flipHorizontally(true);
             enemiesvector[loopEnemies]->enemysprite->moveTo(enemyPosX - enemyMoveSpeed, enemyPosY);
+            enemiesvector[loopEnemies]->enemysprite->flipHorizontally(true);
         }
         if (oldScrollY > scrollY) {
             enemiesvector[loopEnemies]->enemysprite->moveTo(enemyPosX, enemyPosY + enemyMoveSpeed);
@@ -289,7 +352,10 @@ void scene_Chapter1::OffScreen() {
 
 void scene_Chapter1::UpgradeLevel() {
     //enemyMoveSpeed++;
-    totalEnemies = totalEnemies+2;
+    if (totalEnemies < 10)
+    {
+        totalEnemies = totalEnemies+2;
+    }
     player1->resetPlayerKill();
     pause = true;
 }

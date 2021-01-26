@@ -13,7 +13,7 @@
 class Player {
 private:
 
-    int lives;
+
     int kills = 0;
     int ammo;
     int potion;
@@ -27,8 +27,6 @@ private:
     bool boolMoving;
     short int playerfacingx = 0;
     short int playerfacingy = 0;
-    short int TimeBetweenShots = 20;
-    short int ShotCooldown = 0;
     short int staticPlayerModel = 7;
     bool moveflag = false;
     int moveTimerPlayer = 0;
@@ -37,6 +35,7 @@ private:
     int timebetweenshots = 30;
 
 public:
+    int lives;
     int shotcooldown = 0 ;
     std::unique_ptr<Sprite> spriteplayer;
     //Global player getters

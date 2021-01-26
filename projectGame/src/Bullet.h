@@ -12,10 +12,12 @@
 class Bullet {
 
 private:
-    bool flipped;
+
     int damage = 10 ;
 
 public:
+    bool flipped;
+    void correctFlip();
     std::unique_ptr<Sprite> BulletSprite;
     Bullet(SpriteBuilder<Sprite> builder,std::unique_ptr<Sprite> *source,int x, int y, int velocityX, int velocityY, bool flipped);
 };
