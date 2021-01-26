@@ -26,9 +26,7 @@ std::vector<Sprite *> scene_death::sprites() {
 }
 
 void scene_death::load() {
-    foregroundPalette = std::unique_ptr<ForegroundPaletteManager>(new ForegroundPaletteManager(sharedPal, sizeof(sharedPal)));
     backgroundPalette = std::unique_ptr<BackgroundPaletteManager>(new BackgroundPaletteManager(menuPal, sizeof(menuPal)));
-
     engine.get()->enqueueSound(death, death_bytes, 16000);
     //REG_DISPCNT = DCNT_MODE0 | DCNT_OBJ | DCNT_OBJ_1D | DCNT_BG0 | DCNT_BG1;
     bg = std::unique_ptr<Background>(new Background(1, menuTiles, sizeof(menuTiles), menuMap, sizeof(menuMap)));
