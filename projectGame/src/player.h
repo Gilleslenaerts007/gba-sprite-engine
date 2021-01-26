@@ -9,7 +9,7 @@
 #include <libgba-sprite-engine/sprites/sprite_builder.h>
 #include <libgba-sprite-engine/gba/tonc_types.h>
 #include <libgba-sprite-engine/gba_engine.h>
-
+#include "Bullet.h"
 class Player {
 private:
     //friend class scene_Chapter1;
@@ -34,10 +34,10 @@ private:
     int moveTimerPlayer = 0;
     bool boolFlipHori;
     short int OldBulletSize;
-
+    int timebetweenshots = 30;
 
 public:
-
+    int shotcooldown = 0 ;
     std::unique_ptr<Sprite> spriteplayer;
     //Global player getters
     int getAmmo() const {return ammo;}
@@ -60,7 +60,7 @@ public:
 
     //actions
     void movePlayer(u16 input, int *scrX, int *scrY);
-
+    void Shoot(SpriteBuilder<Sprite> builder,std::vector<Bullet*> *DestVector,std::unique_ptr<Sprite> *SpriteTemp);
     //constructor
     Player(SpriteBuilder<Sprite> builder, int x, int y,int hp, char spriteID);
     void setBuilder(SpriteBuilder<Sprite> builder, int x, int y);

@@ -6,7 +6,9 @@
 #include "pixel_player.h"
 #include <libgba-sprite-engine/gba_engine.h>
 #include "scene_Chapter1.h"
-
+#include "Bullet.h"
+#include <vector>
+#include <algorithm>
 
 Player::Player(SpriteBuilder<Sprite> builder, int x, int y, int hp, char spriteID) {
     this->spriteplayer = builder
@@ -16,6 +18,13 @@ Player::Player(SpriteBuilder<Sprite> builder, int x, int y, int hp, char spriteI
             .withinBounds()
             .buildPtr();
     this->playerID = spriteID;
+}
+void  Player::Shoot(SpriteBuilder<Sprite> builder, std::vector<Bullet*> *DestVector, std::unique_ptr<Sprite> *SpriteTemp) {
+    if (this->shotcooldown == 0)
+    {
+        DestVector->push_back(new Bullet(builder , SpriteTemp, this->playerPosX,this->playerPosY,this->playerfacingx,this->playerfacingy,FALSE));
+        this->shotcooldown = this->timebetweenshots;
+    }
 }
 void Player::movePlayer(u16 input, int *scrX, int *scrY) {
 
@@ -115,7 +124,7 @@ void Player::movePlayer(u16 input, int *scrX, int *scrY) {
                 break;
 
         }
-        boolMoving = true;
+        this->boolMoving = true;
     }
     else
     {

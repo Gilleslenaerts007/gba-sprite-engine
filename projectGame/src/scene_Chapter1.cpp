@@ -29,7 +29,13 @@ std::vector<Sprite *> scene_Chapter1::sprites() {
      */
     spritesVector = {};
     spritesVector.push_back(player1->getSprite());
-
+    if (!BulletsVector.empty()){
+        for (int i=0; i < BulletsVector.size(); i++) // niet '<=' anders plek pointer te ver
+        {
+            //BulletsVerti[i]->flipVertically(true);
+            spritesVector.push_back(BulletsVector[i]->BulletSprite.get());
+        }
+    }
     if (!BulletsVerti.empty()){
         for (int i=0; i < BulletsVerti.size(); i++) // niet '<=' anders plek pointer te ver
         {
@@ -105,7 +111,13 @@ void scene_Chapter1::load() {
     player1 = std::shared_ptr<Player>(new Player(builder, 112, 72, 100, 2) );
     //player player1(builder, 112, 72, 100, 2);
     Offbulletscreen = builder
-                                          .withData(BulletVertiTiles, sizeof(BulletVertiTiles))
+                                          .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
+                                          .withSize(SIZE_16_16)
+                                          .withLocation(-32, -32)
+                                          .withVelocity(0,0)
+                                          .buildPtr();
+    Offbulletscreen2 = builder
+                                          .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
                                           .withSize(SIZE_16_16)
                                           .withLocation(-32, -32)
                                           .withVelocity(0,0)
@@ -128,7 +140,7 @@ void scene_Chapter1::load() {
  */
 void scene_Chapter1::tick(u16 keys) {
 
-    if (ShotCooldown != 0) {ShotCooldown--;}
+    if (player1->shotcooldown != 0) { player1->shotcooldown --; }
     OffScreen();
 
     //TextStream::instance().setText(engine->getTimer()->to_string(), 18, 1);
@@ -153,8 +165,17 @@ void scene_Chapter1::tick(u16 keys) {
 
     if (keys & KEY_A)
     {
-        if (player1->getPlayerFaceX() != 0 && OldBulletSize<=7 && ShotCooldown == 0) {shootSide();}
-        else if (player1->getPlayerFaceY() != 0 && OldBulletSize<=7 && ShotCooldown == 0) {shootUp();}
+        if (player1->getPlayerFaceX() != 0 )
+        {
+            player1->Shoot(builder,&BulletsVector,&Offbulletscreen);
+        }
+        else {
+            player1->Shoot(builder,&BulletsVector,&Offbulletscreen2);
+        }
+
+
+        //if (player1->getPlayerFaceX() != 0 && OldBulletSize<=7 && ShotCooldown == 0) {shootSide();}
+        //else if (player1->getPlayerFaceY() != 0 && OldBulletSize<=7 && ShotCooldown == 0) {shootUp();}
         //engine.get()->updateSpritesInScene();
     }
 
@@ -184,6 +205,16 @@ void scene_Chapter1::UpdateGame() {
 
 
     //COLLISION
+    for (int i = 0 ; i < BulletsVector.size() ; i++){
+        for (int x = 0 ; x < enemies.size();x++)
+        {
+            if (BulletsVector[i]->BulletSprite->collidesWith(*enemies[x]))
+            {
+                enemies.erase(std::remove(enemies.begin(), enemies.end(), enemies[x]));
+                //engine.get()->updateSpritesInScene();
+            }
+        }
+    }
 
     if ( currentEnemies <= totalEnemies)
     {
@@ -333,11 +364,11 @@ void scene_Chapter1::shootSide() {
 }
 void scene_Chapter1::OffScreen() {
 
-    for (int i = 0 ; i<BulletsHori.size();i++)
+    for (int i = 0 ; i<BulletsVector.size();i++)
     {
-        if (BulletsHori[i]->isOffScreen())
+        if (BulletsVector[i]->BulletSprite->isOffScreen())
         {
-            BulletsHori.erase(std::remove(BulletsHori.begin(), BulletsHori.end(), BulletsHori[i]));
+            BulletsVector.erase(std::remove(BulletsVector.begin(), BulletsVector.end(), BulletsVector[i]));
             engine.get()->updateSpritesInScene();
            //engine->update();
         }

@@ -10,7 +10,7 @@
 #include <libgba-sprite-engine/sprites/affine_sprite.h>
 #include <libgba-sprite-engine/background/background.h>
 #include "player.h"
-
+#include "Bullet.h"
 #define Xlimit 500
 #define Ylimit 500
 
@@ -20,9 +20,11 @@ private:
     std::vector<Sprite *> spritesVector;
     std::vector<std::unique_ptr<Sprite >> enemies;
     std::unique_ptr<Sprite> Offbulletscreen;
+    std::unique_ptr<Sprite> Offbulletscreen2;
     std::vector<std::unique_ptr<Sprite >> BulletsHori;
     std::vector<std::unique_ptr<Sprite >> BulletsVerti;
-
+    std::vector<std::unique_ptr<Sprite>> Bullets;
+    std::vector<Bullet*> BulletsVector;
     std::shared_ptr<Player> player1;
     SpriteBuilder<Sprite> builder;
     SpriteBuilder<AffineSprite> affineBuilder;
