@@ -21,7 +21,7 @@ public:
     bool shoot();
 
     //constructor
-    Player(SpriteBuilder<Sprite> builder, int x, int y,int hp, char spriteID);
+    Player(SpriteBuilder<Sprite> builder, int x, int y, char spriteID,int hp=100);
     ~Player(){};
 };
 

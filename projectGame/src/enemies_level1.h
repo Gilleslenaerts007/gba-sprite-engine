@@ -19,7 +19,7 @@ public:
 
     //void movePlayer(u16 input, int *scrX, int *scrY);
     //constructor
-    enemies_level1(SpriteBuilder<Sprite> builder, int x, int y, char spriteID, int hp=100);
+    enemies_level1(SpriteBuilder<Sprite> builder, int x, int y, char spriteID, int hp=50);
     ~enemies_level1(){};
 };
 

@@ -8,7 +8,7 @@
 #include "scene_Chapter1.h"
 
 
-Player::Player(SpriteBuilder<Sprite> builder, int x, int y, int hp, char spriteID) {
+Player::Player(SpriteBuilder<Sprite> builder, int x, int y,char spriteID, int hp) {
     this->spriteEntity = builder
             .withSize(SIZE_16_16)
             .withLocation(x, y)
@@ -16,6 +16,7 @@ Player::Player(SpriteBuilder<Sprite> builder, int x, int y, int hp, char spriteI
             .withinBounds()
             .buildPtr();
     this->ID = spriteID;
+    this->hp = hp;
 }
 void Player::movePlayer(u16 input, int *scrX, int *scrY) {
 
