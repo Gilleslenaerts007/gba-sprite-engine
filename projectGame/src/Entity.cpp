@@ -6,6 +6,7 @@
 
 void Entity::setParameters(){
     this->spriteEntity->setVelocity(this->speedX, this->speedY);
-    //this->spriteplayer->animateToFrame(staticPlayerModel);
+    //this->spriteEntity->moveTo(this->PosX,this->PosY);
+    //this->spriteEntity->animateToFrame(this->staticModel);
     this->spriteEntity->flipHorizontally(this->boolFlipHori);
 }

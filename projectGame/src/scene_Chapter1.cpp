@@ -114,6 +114,8 @@ void scene_Chapter1::load() {
 
 
     //TextStream::instance().setText("PRESS START", 3, 8);
+    engine->enableText();
+    TextStream::instance().setText(std::string("hp: "), 7, 5);
     /*
     bg_C3 = std::unique_ptr<Background>(new Background(1, tilesetOpenGameTiles, sizeof(tilesetOpenGameTiles), affinemap, sizeof(affinemap)));
     bg_C3.get()->useMapScreenBlock(8);
@@ -154,6 +156,7 @@ void scene_Chapter1::tick(u16 keys) {
 
     if (keys & KEY_A)
     {
+
         if (player1->getFaceX() != 0 && OldBulletSize<=7 && ShotCooldown == 0) {shootSide();}
         else if (player1->getFaceY() != 0 && OldBulletSize<=7 && ShotCooldown == 0) {shootUp();}
         //engine.get()->updateSpritesInScene();
@@ -162,7 +165,8 @@ void scene_Chapter1::tick(u16 keys) {
     //setScrollMap(, int scrollX);
     player1->movePlayer(keys, &scrollX, &scrollY);
     //bg_C1->scroll(scrollY,scrollX);
-    moveTimerEnemy++;
+    //moveTimerEnemy++;
+
 
     /* Have to udpate engine first before flipping models otherwise fucks the sprites?
      * For the enemies vector, need to make a class of enemy with hp/dmg/flip/...
@@ -177,6 +181,7 @@ void scene_Chapter1::tick(u16 keys) {
     if (player1->getFaceY() == -1)  BulletsVerti[BulletsVerti.size()-1]->flipVertically(false);
     else if(player1->getFaceY() == 1) BulletsVerti[BulletsVerti.size()-1]->flipVertically(true);
     player1->setParameters();
+    //enemies[loopEnemies]->setParameters();
     bg_C1.get()->scroll(scrollX, scrollY);
 
 };
@@ -190,6 +195,7 @@ void scene_Chapter1::UpdateGame() {
     {
         if (player1->getMoving() && (spawnerTime >= 20) ) //         if (boolPlayerMoving && spawnerTime <= 5000) //
         {
+            //enemies.push_back( (new enemies_level1(builder, rand()%GBA_SCREEN_WIDTH +1, rand()%GBA_SCREEN_HEIGHT+1, rand() % 1, rand() % 1, 2) ) );
             enemies.push_back( builder
                                        .withData(EnemyFullTiles, sizeof(EnemyFullTiles))
                                        .withSize(SIZE_16_16)
@@ -209,6 +215,7 @@ void scene_Chapter1::UpdateGame() {
         UpdateMovements();
     }
 
+    TextStream::instance().setText(std::to_string(player1->getHP()), 5, 16);
     /*
     if (OldBulletSize != BulletsHori.size()+BulletsVerti.size())
     {
@@ -222,16 +229,16 @@ void scene_Chapter1::UpdateMovements(){
 
     enemyPosX = enemies[loopEnemies]->getX();
     enemyPosY = enemies[loopEnemies]->getY();
-    if (moveTimerEnemy >= 4)
+    if (moveTimerEnemy >= 2)
     {
         moveflagEnemy = !moveflagEnemy;
         moveTimerEnemy = 0;
     }
+
     if ( (enemyPosX == player1->getXcoord()) || (enemyPosY == player1->getYcoord()) )
     {
         //enemyshoot();
         enemies[loopEnemies]->animateToFrame(staticEnemyModel);
-        //enemies[loopEnemies]->flipHorizontally(enemyfacingx);
     }
     else
     {
@@ -245,10 +252,7 @@ void scene_Chapter1::UpdateMovements(){
                 if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(7);
                 else enemies[loopEnemies]->animateToFrame(8);
                 staticEnemyModel = 7;
-                enemyfacingx = true;
-                engine.get()->updateSpritesInScene();
                 enemies[loopEnemies]->flipHorizontally(true);
-                //enemies[loopEnemies]->flipHorizontally(true);
                 enemyPosX--;
             }
             else
@@ -256,8 +260,7 @@ void scene_Chapter1::UpdateMovements(){
                 if(moveflagEnemy)enemies[loopEnemies]->animateToFrame(7);
                 else enemies[loopEnemies]->animateToFrame(8);
                 staticEnemyModel = 8;
-                enemyfacingx = false;
-                //enemies[loopEnemies]->flipHorizontally(false);
+                enemies[loopEnemies]->flipHorizontally(false);
                 enemyPosX++;
             }
         }
@@ -278,18 +281,16 @@ void scene_Chapter1::UpdateMovements(){
                 enemyPosY--;
             }
         }
-       moveTimerEnemy++;
+        moveTimerEnemy++;
     }
 
     if (oldScrollX == scrollX){
         enemies[loopEnemies]->moveTo(enemyPosX, enemyPosY);
     }
     if (oldScrollX > scrollX){
-        enemies[loopEnemies]->flipHorizontally(false);
         enemies[loopEnemies]->moveTo(enemyPosX+enemyMoveSpeed, enemyPosY);
     }
     else if (oldScrollX < scrollX){
-        enemies[loopEnemies]->flipHorizontally(true);
         enemies[loopEnemies]->moveTo(enemyPosX-enemyMoveSpeed, enemyPosY);
     }
     if (oldScrollY > scrollY){
@@ -305,9 +306,37 @@ void scene_Chapter1::UpdateMovements(){
     }
     else loopEnemies = 0;
 
-    //engine.get()->updateSpritesInScene();
     oldScrollX = scrollX;
     oldScrollY = scrollY;
+
+    //enemies[loopEnemies]->trackPlayer(&scrollX, &scrollY, &oldScrollX, &oldScrollY, player1->getXcoord() , player1->getYcoord() );
+    /*
+    if (oldScrollX == scrollX){
+        enemies[loopEnemies]->spriteEntity->moveTo(enemies[loopEnemies]->getXcoord(), enemies[loopEnemies]->getYcoord());
+    }
+    if (oldScrollX > scrollX){
+        //enemies[loopEnemies]->flipHorizontally(false);
+        enemies[loopEnemies]->spriteEntity->moveTo(enemies[loopEnemies]->getXcoord()+2, enemies[loopEnemies]->getYcoord());
+    }
+    else if (oldScrollX < scrollX){
+        //enemies[loopEnemies]->flipHorizontally(true);
+        enemies[loopEnemies]->spriteEntity->moveTo(enemies[loopEnemies]->getXcoord()-2, enemies[loopEnemies]->getYcoord());
+    }
+    if (oldScrollY > scrollY){
+        enemies[loopEnemies]->spriteEntity->moveTo(enemies[loopEnemies]->getXcoord(), enemies[loopEnemies]->getYcoord()+2);
+    }
+    else if (oldScrollY < scrollY){
+        enemies[loopEnemies]->spriteEntity->moveTo(enemies[loopEnemies]->getXcoord(), enemies[loopEnemies]->getYcoord()-2);
+    }
+    if (loopEnemies < enemies.size() -1 )
+    {
+        loopEnemies++;
+    }
+    else loopEnemies = 0;
+    oldScrollX = scrollX;
+    oldScrollY = scrollY;
+    */
+    //engine.get()->updateSpritesInScene();
 }
 
 void scene_Chapter1::shootUp() {

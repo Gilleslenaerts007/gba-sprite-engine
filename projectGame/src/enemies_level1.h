@@ -10,16 +10,24 @@
 #include <libgba-sprite-engine/gba/tonc_types.h>
 #include <libgba-sprite-engine/gba_engine.h>
 #include "Entity.h"
+#include "Player.h"
 
 class enemies_level1 : public Entity {
 
 private:
 
+    //int oldScrollX;
+    //int oldScrollY;
+    int trackingX;
+    int trackingY;
+    short int MoveSpeed = 3;
+
 public:
 
-    //void movePlayer(u16 input, int *scrX, int *scrY);
+    void trackPlayer(int *scrX, int *scrY, int *oldscrY, int *oldscrX, int trackX, int trackY);
+
     //constructor
-    enemies_level1(SpriteBuilder<Sprite> builder, int x, int y, char spriteID, int hp=50);
+    enemies_level1(SpriteBuilder<Sprite> builder, int x, int y,int velX, int velY, char spriteID, int hp=50);
     ~enemies_level1(){};
 };
 

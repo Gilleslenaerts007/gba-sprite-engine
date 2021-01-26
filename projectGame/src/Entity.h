@@ -40,11 +40,13 @@ public:
     int getAmmo() const {return this->ammo;}
     int getPotions() const {return this->potion;}
     int getFirstAid() const {return this->FirstAid;}
-    int getXcoord() const {return this->spriteEntity->getX();}
-    int getYcoord() const {return this->spriteEntity->getY();}
+    int getXcoord() const {return spriteEntity->getX();}
+    int getYcoord() const {return spriteEntity->getY();}
+    int getHP() const {return this->hp;}
     bool getMoving() const {return this->boolMoving;}
     short int getFaceX() const {return this->facingx;}
     short int getFaceY() const {return this->facingy;}
+    //int getMoveTimer() const {return this->moveTimer;}
 
     Sprite * getSprite() const { return this->spriteEntity.get();}
     //std::shared_ptr<Weapon> getWeapon();
@@ -52,6 +54,8 @@ public:
     //global setters
     bool shoot();
     void setParameters();//int speedX, int speedY);//, bool boolFlipHori, bool boolFlipVerti, int frameNumber);
+    void setFlipHori();
+    void set();
     //void setWeapon(std::shared_ptr<Weapon> gun);
 
     //actions

@@ -22,14 +22,18 @@ private:
     //Game vars
     std::vector<Sprite *> spritesVector;
     std::vector<std::unique_ptr<Sprite >> enemies;
+    //std::vector<std::shared_ptr<enemies_level1>> enemies;
     std::unique_ptr<Sprite> Offbulletscreen;
     std::vector<std::unique_ptr<Sprite >> BulletsHori;
     std::vector<std::unique_ptr<Sprite >> BulletsVerti;
 
     //std::shared_ptr<Entity> playerptr;
     //std::shared_ptr<Player> player1;
+
     Player *player1;
+    //std::vector<enemies_level1*> enemies;
     Entity *playerptr;
+    //std::vector<bullet*> bullets;
     /*
     d *derived = new d();
     b *bptr = derived;
@@ -51,7 +55,7 @@ private:
 
     //Enemie vars
     int spawnerTime;
-    int totalEnemies = 4;
+    int totalEnemies = 1;
     int currentEnemies = 0;
     int enemyPosX;
     int enemyPosY;
