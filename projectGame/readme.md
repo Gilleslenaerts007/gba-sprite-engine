@@ -22,3 +22,8 @@ The default map constructor sets maplayout is 32_32 inside the background.cpp en
 
 ##GBA-TileEditor
 With this program we can chose the map layout size and insert a tileset to design a costume scene/map
+
+##TODO
+enemy to player -> run to player, collision = live --;
+
+Schema

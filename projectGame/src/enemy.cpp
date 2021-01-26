@@ -1,7 +1,6 @@
 //
-// Created by jonas on 26/01/2021.
+// Created by Gille on 1/26/2021.
 //
-
 
 #include "enemy.h"
 #include "pixel_player.h"

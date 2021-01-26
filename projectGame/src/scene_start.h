@@ -10,7 +10,10 @@
 class scene_start : public Scene {
 
 private:
-    std::unique_ptr<Sprite> menu_picker;
+    std::unique_ptr<Sprite> menu_char;
+    std::unique_ptr<Sprite> menu_enemy;
+    std::vector<Sprite *> spritesVector;
+
     std::unique_ptr<Background> bg;
     bool pressingAorB = false;
 

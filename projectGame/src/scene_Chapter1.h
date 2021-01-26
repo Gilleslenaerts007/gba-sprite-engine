@@ -18,28 +18,28 @@
 class scene_Chapter1 : public Scene {
 private:
     //Game vars
-    std::vector<Sprite *> spritesVector;
-    std::vector<std::unique_ptr<Sprite >> enemies;
-    std::vector<enemy*> enemiesvector;
-    std::unique_ptr<Sprite> Offbulletscreen;
-    std::unique_ptr<Sprite> Offbulletscreen2;
     std::vector<std::unique_ptr<Sprite >> BulletsHori;
     std::vector<std::unique_ptr<Sprite >> BulletsVerti;
-    std::vector<std::unique_ptr<Sprite>> Bullets;
-    std::vector<Bullet*> BulletsVector;
-    std::shared_ptr<Player> player1;
+
     SpriteBuilder<Sprite> builder;
-    SpriteBuilder<AffineSprite> affineBuilder;
+    std::shared_ptr<Player> player1;
+    std::vector<enemy*> enemiesvector;
+    std::vector<Bullet*> BulletsVector;
+    std::unique_ptr<Sprite> Offbulletscreen;
+    std::unique_ptr<Sprite> Offbulletscreen2;
+    std::vector<Sprite *> spritesVector;
+
 
     std::unique_ptr<Background> bg_C1;
-    std::unique_ptr<Background> bg_C2;
-    std::unique_ptr<Background> bg_C3;
+
     bool pressingAorB = false;
-    bool updateSprites;
 
     int rotation;
     int rotationDiff = 128;
+
     int scrollX, scrollY;
+    bool update = FALSE ;
+    bool pause = false ;
 
     //Enemie vars
     int spawnerTime;
@@ -56,16 +56,17 @@ private:
     short int staticEnemyModel = 7;
     int oldScrollX, oldScrollY;
     short int enemyMoveSpeed = 3;
+
     //Player vars
     int playerfacingx = 0;
     int playerfacingy = 0;
     int TimeBetweenShots = 20;
     int ShotCooldown = 0;
     int OldBulletSize;
-    bool update = FALSE ;
+
 
 public:
-    std::vector<int> enemystoremove;
+
     std::vector<Sprite *> sprites() override;
     std::vector<Background *> backgrounds() override;
 
@@ -81,8 +82,7 @@ public:
     void UpdateGame();
     void UpdateMovements();
     void OffScreen();
-    void shootUp();
-    void shootSide();
+    void UpgradeLevel();
 
     void load() override;
     void tick(u16 keys) override;
