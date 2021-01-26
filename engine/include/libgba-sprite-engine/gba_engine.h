@@ -45,6 +45,7 @@ public:
     GBAEngine();
 
     Timer* getTimer();
+    Scene* getScene() const {return this->currentScene;}
     void setScene(Scene* scene);
     void dynamicallyAddSprite(Sprite* s) { spriteManager.add(s); }
     void transitionIntoScene(Scene* scene, SceneEffect* effect);
