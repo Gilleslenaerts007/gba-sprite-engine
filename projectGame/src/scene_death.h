@@ -11,12 +11,15 @@
 class scene_death : public Scene {
 private:
     //int rotation,rotationDiff, scrollX, scrollY;
+    std::unique_ptr<Background> bg;
 public:
     std::vector<Sprite *> sprites() override;
     std::vector<Background *> backgrounds() override;
-    void load() override ;
-    void tick(u16 keys) override;
+
     scene_death(std::shared_ptr<GBAEngine> engine) : Scene(engine) {}
+
+    void load() override;
+    void tick(u16 keys) override;
     //scene_death(std::shared_ptr<GBAEngine> engine) : Scene(engine), rotation(0), rotationDiff(128), scrollX(0), scrollY(0) {}
 
 };
