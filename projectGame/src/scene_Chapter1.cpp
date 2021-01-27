@@ -120,7 +120,6 @@ void scene_Chapter1::tick(u16 keys) {
         TextStream::instance().setText("KILLS:"+ std::to_string(player1->getPlayerKills()), 0, 0);
         TextStream::instance().setText("LIVES:"+ std::to_string(player1->getPlayerLives()), 1, 0);
         if (player1->shotcooldown != 0) { player1->shotcooldown --; }
-        OldBulletSize = BulletsHori.size() + BulletsVerti.size();
         OffScreen();
 
         if (keys & KEY_A || pressingAorB)
@@ -153,10 +152,7 @@ void scene_Chapter1::tick(u16 keys) {
         }
 
         UpdateGame();
-        if (player1->getPlayerFaceX() == -1) BulletsHori[BulletsHori.size()-1]->flipHorizontally(true);
-        else if(player1->getPlayerFaceX() == 1) BulletsHori[BulletsHori.size()-1]->flipHorizontally(false);
-        if (player1->getPlayerFaceY() == -1)  BulletsVerti[BulletsVerti.size()-1]->flipVertically(false);
-        else if(player1->getPlayerFaceY() == 1) BulletsVerti[BulletsVerti.size()-1]->flipVertically(true);
+
         player1->setPlayerParameters();
         for (int i = 0 ; i < enemiesvector.size();i++)
         {

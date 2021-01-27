@@ -18,8 +18,6 @@
 class scene_Chapter1 : public Scene {
 private:
     //Game vars
-    std::vector<std::unique_ptr<Sprite >> BulletsHori;
-    std::vector<std::unique_ptr<Sprite >> BulletsVerti;
 
     SpriteBuilder<Sprite> builder;
     Player* player1;
@@ -33,9 +31,6 @@ private:
     std::unique_ptr<Background> bg_C1;
 
     bool pressingAorB = false;
-
-    int rotation;
-    int rotationDiff = 128;
 
     int scrollX, scrollY;
     bool update = FALSE ;
@@ -56,26 +51,17 @@ private:
     int oldScrollX, oldScrollY;
     short int enemyMoveSpeed = 3;
 
-    //Player vars
-    int playerfacingx = 0;
-    int playerfacingy = 0;
-    int TimeBetweenShots = 20;
-    int ShotCooldown = 0;
-    int OldBulletSize;
 
 
 public:
-
     std::vector<Sprite *> sprites() override;
     std::vector<Background *> backgrounds() override;
 
     //getters
-    int getScrollYMap() const {return this->scrollY;}
-    int getScrollXMap() const {return this->scrollX;}
+
 
     //Setters
-    void setScrollMap(int scrollY, int scrollX);
-    scene_Chapter1(std::shared_ptr<GBAEngine> engine) : Scene(engine), rotation(0), rotationDiff(128), scrollX(0), scrollY(0) {}
+    scene_Chapter1(std::shared_ptr<GBAEngine> engine) : Scene(engine),scrollX(0), scrollY(0) {}
 
     //actions
     void UpdateGame();
