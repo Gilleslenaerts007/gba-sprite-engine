@@ -10,6 +10,7 @@
 #include <libgba-sprite-engine/gba/tonc_types.h>
 #include <libgba-sprite-engine/gba_engine.h>
 #include "Bullet.h"
+
 class Player {
 private:
 
@@ -64,8 +65,6 @@ public:
 
     //constructor
     Player(SpriteBuilder<Sprite> builder, int x, int y, int lives, char spriteID);
-    void setBuilder(SpriteBuilder<Sprite> builder, int x, int y);
-
 };
 
 

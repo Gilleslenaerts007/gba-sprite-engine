@@ -11,10 +11,9 @@
 int main() {
     std::shared_ptr<GBAEngine> engine(new GBAEngine());
 
+    srand (time(NULL));
     scene_start* startScene = new scene_start(engine);
     engine->setScene(startScene);
-    srand (time(NULL));
-
     while (true) {
         engine->update();
         engine->delay(1000);

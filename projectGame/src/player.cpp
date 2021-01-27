@@ -142,11 +142,3 @@ void Player::setPlayerParameters(){
     //this->spriteplayer->animateToFrame(staticPlayerModel);
     this->spriteplayer->flipHorizontally(boolFlipHori);
 }
-
-void Player::setBuilder(SpriteBuilder<Sprite> builder, int x, int y) {
-    this->spriteplayer = builder
-            .withSize(SIZE_16_16)
-            .withLocation(x, y)
-            .withData(PlayerFullTiles, sizeof(PlayerFullTiles))
-            .buildPtr();
-}

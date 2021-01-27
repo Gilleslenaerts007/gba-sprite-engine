@@ -1,26 +1,27 @@
 //
-// Created by jonas on 26/01/2021.
+// Created by Gille on 1/26/2021.
 //
 
 #ifndef GBA_SPRITE_ENGINE_PROJECT_SCENE_DEATH_H
 #define GBA_SPRITE_ENGINE_PROJECT_SCENE_DEATH_H
 
 #include <libgba-sprite-engine/scene.h>
-
+#include <libgba-sprite-engine/sprites/sprite.h>
+#include <libgba-sprite-engine/sprites/affine_sprite.h>
+#include <libgba-sprite-engine/background/background.h>
 
 class scene_death : public Scene {
-private:
-    //int rotation,rotationDiff, scrollX, scrollY;
-    std::unique_ptr<Background> bg;
 public:
+
+    std::unique_ptr<Background> bg;
+
     std::vector<Sprite *> sprites() override;
     std::vector<Background *> backgrounds() override;
 
-    scene_death(std::shared_ptr<GBAEngine> engine) : Scene(engine) {}
+    scene_death(const std::shared_ptr<GBAEngine> &engine);
 
     void load() override;
     void tick(u16 keys) override;
-    //scene_death(std::shared_ptr<GBAEngine> engine) : Scene(engine), rotation(0), rotationDiff(128), scrollX(0), scrollY(0) {}
 
 };
 

@@ -95,6 +95,7 @@ void scene_start::tick(u16 keys) {
 
     if(keys & KEY_START) {
         if (!engine->isTransitioning()) {
+            bg.get_deleter();
             //MUSIC?//engine->enqueueSound(zelda_secret_16K_mono, zelda_secret_16K_mono_bytes);
             TextStream::instance() << "entered: starting next scene";
             engine->transitionIntoScene(new scene_Chapter1(engine), new FadeOutScene(2));

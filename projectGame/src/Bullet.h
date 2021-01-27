@@ -23,4 +23,5 @@ public:
 };
 
 
+
 #endif //GBA_SPRITE_ENGINE_PROJECT_BULLET_H
