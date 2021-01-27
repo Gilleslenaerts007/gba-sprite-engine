@@ -16,7 +16,6 @@ private:
 
 
     int kills = 0;
-    int ammo;
     char playerID;
 
     int playerPosX;
