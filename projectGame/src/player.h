@@ -17,8 +17,6 @@ private:
 
     int kills = 0;
     int ammo;
-    int potion;
-    int FirstAid;
     char playerID;
 
     int playerPosX;
@@ -32,17 +30,15 @@ private:
     bool moveflag = false;
     int moveTimerPlayer = 0;
     bool boolFlipHori;
-    short int OldBulletSize;
     int timebetweenshots = 30;
 
 public:
+
     int lives;
     int shotcooldown = 0 ;
     std::unique_ptr<Sprite> spriteplayer;
+
     //Global player getters
-    int getAmmo() const {return ammo;}
-    int getPotions() const {return potion;}
-    int getFirstAid() const {return FirstAid;}
     int getXcoord() const {return spriteplayer->getX();}
     int getYcoord() const {return spriteplayer->getY();}
     bool getPlayerMoving() const {return this->boolMoving;}
@@ -54,10 +50,9 @@ public:
     Sprite * getSprite() const { return spriteplayer.get();}
 
     //global player setters
-    void setPlayerParameters();//int speedX, int speedY);//, bool boolFlipHori, bool boolFlipVerti, int frameNumber);
+    void setPlayerParameters();
     void addPlayerKill() {this->kills++;}
     void resetPlayerKill() {this->kills=0;}
-    //void setWeapon(std::shared_ptr<Weapon> gun);
 
     //actions
     void movePlayer(u16 input, int *scrX, int *scrY);

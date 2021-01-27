@@ -49,23 +49,17 @@ std::vector<Sprite *> scene_Chapter1::sprites() {
 }
 
 /*
- * Declare a spritebuilder class of type class Sprite
- * sprite from class current scene (scene_start.h) = std::unique_ptr<Sprite> XXXXX;
- * assign spritebuilder to XXXXX
- * BUILDER has many many options make sure to check these !!!
- *
- * So for having 1 player moving around different levels maybe have a player scene ?
- * Other entities/enemies/boss are defined per scene class.
+ * Declarations of spritebuilder, background and sprites. The background constructor is to pass the maplayout size (more info below) and its data
+ * Background handler
+     MAPLAYOUT_32X32
+     MAPLAYOUT_32X64
+     MAPLAYOUT_64X32
+     MAPLAYOUT_64X64
+   64x64 is picked so a 512x512 background is loaded to enable scrolling across.
+   ForegroundPalette is the manager for using the shared colors of the sprite tiles.
  */
 void scene_Chapter1::load() {
 
-    /*
-     * Background handler
-     *  MAPLAYOUT_32X32
-        MAPLAYOUT_32X64
-        MAPLAYOUT_64X32
-        MAPLAYOUT_64X64
-     */
     REG_DISPCNT = DCNT_MODE0 | DCNT_OBJ | DCNT_OBJ_1D | DCNT_BG0 | DCNT_BG1; //Als dit aanstaat kan bg index al vanaf 0. zoniet van index 1.
     backgroundPalette = std::unique_ptr<BackgroundPaletteManager>(new BackgroundPaletteManager(bgPal, sizeof(bgPal)));
     bg_C1 = std::unique_ptr<Background>(new Background(1, bgTiles, sizeof(bgTiles), bgMap, sizeof(bgMap), MAPLAYOUT_64X64));
@@ -75,17 +69,17 @@ void scene_Chapter1::load() {
     player1 = (new Player(builder, 112, 72, 5, 2) );
 
     Offbulletscreen = builder
-                                          .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
-                                          .withSize(SIZE_16_16)
-                                          .withLocation(-32, -32)
-                                          .withVelocity(0,0)
-                                          .buildPtr();
+            .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
+            .withSize(SIZE_16_16)
+            .withLocation(-32, -32)
+            .withVelocity(0,0)
+            .buildPtr();
     Offbulletscreen2 = builder
-                                          .withData(BulletHoriTiles, sizeof(BulletHoriTiles))
-                                          .withSize(SIZE_16_16)
-                                          .withLocation(-32, -32)
-                                          .withVelocity(0,0)
-                                          .buildPtr();
+            .withData(BulletVertiTiles, sizeof(BulletVertiTiles))
+            .withSize(SIZE_16_16)
+            .withLocation(-32, -32)
+            .withVelocity(0,0)
+            .buildPtr();
 
 
     TextStream::instance().setText("KILLS: ", 0, 0);
@@ -96,8 +90,9 @@ void scene_Chapter1::load() {
 
 
 /*
- * Player movement & key reads
- *
+ * Player movement based on key input reads and player shooting
+ * Contains textstream updates
+ * Fix sprite flips with their parameter calls.
  */
 void scene_Chapter1::tick(u16 keys) {
 
@@ -141,12 +136,9 @@ void scene_Chapter1::tick(u16 keys) {
         player1->movePlayer(keys, &scrollX, &scrollY);
         moveTimerEnemy++;
 
-        /* Have to udpate engine first before flipping models otherwise fucks the sprites?
-         * For the enemies vector, need to make a class of enemy with hp/dmg/flip/...
-         * With this class change the flip bool in the updatemovement();
-         * Then with a for loop check the bool flip with enemyvector[i].flip if yes flip that one in the vector.
-         *
-         * */
+        /*
+         * Have to udpate engine first before flipping models otherwise messes up the sprites?
+         */
         if (update){
             engine.get()->updateSpritesInScene();
             ~update;
@@ -171,6 +163,13 @@ void scene_Chapter1::tick(u16 keys) {
 
 }
 
+/*
+ * Spawn logic of the bandits with the spawntimer, playermovement and enemies limit.
+ * Calls the enemy tracking to player function with 'updateMovements();
+ * Collisions are checked with the bullets & enemies vector as well collisions with enemy & player.
+ * When player gets X kills, he upgrades to a new level, spawning more enemies & frequent.
+ * When the player dies the death scene is called and transistion into the menu background screen and can restart.
+ */
 void scene_Chapter1::UpdateGame() {
 
 
@@ -236,6 +235,11 @@ void scene_Chapter1::UpdateGame() {
 
 }
 
+/*
+ * Tracking logic of the bandits by checking the current sprite positions on the screen & calculating the absolute difference
+ * for shortest path tracking. When they are on a same line than the player, they track the player by moving in.
+ * Old scroll and scroll is used to change the movement speed of the enemy based on mapscrolling.
+ */
 void scene_Chapter1::UpdateMovements(){
     if (!enemiesvector.empty()) {
         enemyPosX = enemiesvector[loopEnemies]->enemysprite->getX();
@@ -338,26 +342,28 @@ void scene_Chapter1::UpdateMovements(){
             loopEnemies++;
         } else loopEnemies = 0;
 
-        //engine.get()->updateSpritesInScene();
         oldScrollX = scrollX;
         oldScrollY = scrollY;
     }
 }
 
+/*
+ * Checks bulletsvector if they are offscreen and then deleted.
+ */
 void scene_Chapter1::OffScreen() {
 
     for (int i = 0; i < BulletsVector.size(); i++) {
         if (BulletsVector[i]->BulletSprite->isOffScreen()) {
             BulletsVector.erase(std::remove(BulletsVector.begin(), BulletsVector.end(), BulletsVector[i]));
-//            engine.get()->updateSpritesInScene();
-            //engine->update();
             update = TRUE;
         }
     }
 }
 
+/*
+ * If the player reached X kills, this is called to change parameters.
+ */
 void scene_Chapter1::UpgradeLevel() {
-    //enemyMoveSpeed++;
     if (totalEnemies < 11)
     {
         totalEnemies = totalEnemies+1;

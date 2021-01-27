@@ -40,7 +40,6 @@ void scene_death::tick(u16 keys) {
     if(keys & KEY_START) {
             bg.get_deleter();
             engine->setScene(new scene_start(engine));
-            //engine->setScene(new scene_Chapter1(engine));
     }
 
 }

@@ -17,10 +17,13 @@
 
 class scene_Chapter1 : public Scene {
 private:
-    //Game vars
+
+    //bg
+    std::unique_ptr<Background> bg_C1;
+
+    //sprites
     std::vector<std::unique_ptr<Sprite >> BulletsHori;
     std::vector<std::unique_ptr<Sprite >> BulletsVerti;
-
     SpriteBuilder<Sprite> builder;
     Player* player1;
     std::vector<enemy*> enemiesvector;
@@ -29,19 +32,15 @@ private:
     std::unique_ptr<Sprite> Offbulletscreen2;
     std::vector<Sprite *> spritesVector;
 
-
-    std::unique_ptr<Background> bg_C1;
-
+    //Game vars
     bool pressingAorB = false;
-
     int rotation;
     int rotationDiff = 128;
-
     int scrollX, scrollY;
     bool update = FALSE ;
     bool pause = false ;
 
-    //Enemie vars
+    //Enemy vars
     int spawnerTime;
     int totalEnemies = 4;
     int currentEnemies = 0;
@@ -52,38 +51,26 @@ private:
     int loopEnemies;
     int trackingY;
     int trackingX;
-    bool enemyfacingx = 0;
     short int staticEnemyModel = 7;
     int oldScrollX, oldScrollY;
     short int enemyMoveSpeed = 3;
-
-    //Player vars
-    int playerfacingx = 0;
-    int playerfacingy = 0;
-    int TimeBetweenShots = 20;
-    int ShotCooldown = 0;
     int OldBulletSize;
 
 
 public:
 
+    //engine updates
     std::vector<Sprite *> sprites() override;
     std::vector<Background *> backgrounds() override;
 
-    //getters
-    int getScrollYMap() const {return this->scrollY;}
-    int getScrollXMap() const {return this->scrollX;}
-
-    //Setters
-    void setScrollMap(int scrollY, int scrollX);
+    //Constructor
     scene_Chapter1(std::shared_ptr<GBAEngine> engine) : Scene(engine), rotation(0), rotationDiff(128), scrollX(0), scrollY(0) {}
 
-    //actions
+    //------------FUNCTIONS---------------//
     void UpdateGame();
     void UpdateMovements();
     void OffScreen();
     void UpgradeLevel();
-
     void load() override;
     void tick(u16 keys) override;
 

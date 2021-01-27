@@ -5,10 +5,15 @@ Ash starts with 5 lives and after 10 kills, the enemy spawn pool increases, maki
 
 How long can you defend Ash's town... ?!
 
+##Instructions
+Move around with arrow keys and press 'X' to shoot. You start with 5 lives and enemy waves get bigger
+every 10 kills. Goodluck.
+
 ##Folder structure
 - Inside 'src', most of the game code can be found.
 - 'img', contains the images used for background & sprite creations.
 - in 'pikseldata', the converted arrays from using Grit are stored.
+
 ##Code overview
 The game contains 2 scenes, a start screen and an actual game screen. The menu screen is based of 1 background
 and some text together with the sprites used in the game scene. The game scene is called 'scene_Chapter1.cpp", contains
@@ -46,4 +51,3 @@ for sprites tile/map/pallete creation:
 > grit EnemyFull.png CharFull.png BulletHori.png BulletVerti.png -ftc -pS -gB8 -O shared.c 
 
 ###FUTURE WORK
-Schema

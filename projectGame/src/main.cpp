@@ -16,7 +16,7 @@ int main() {
     engine->setScene(startScene);
     while (true) {
         engine->update();
-        engine->delay(1000);
+        //engine->delay(1000);
     }
 
     return 0;

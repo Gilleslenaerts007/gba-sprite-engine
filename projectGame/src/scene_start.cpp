@@ -15,7 +15,7 @@
 #include "pixel_player.h"
 
 /*
- * Current background on the scene?
+ * Current background on the scene
  */
 std::vector<Background *> scene_start::backgrounds() {
     return {bg.get()};
@@ -30,15 +30,6 @@ std::vector<Sprite *> scene_start::sprites() {
     return { spritesVector };
 }
 
-/*
- * Declare a spritebuilder class of type class Sprite
- * sprite from class current scene (scene_start.h) = std::unique_ptr<Sprite> XXXXX;
- * assign spritebuilder to XXXXX
- * BUILDER has many many options make sure to check these !!!
- *
- * So for having 1 player moving around different levels maybe have a player scene ?
- * Other entities/enemies/boss are defined per scene class.
- */
 void scene_start::load() {
     /*
      * Bij de palletten moeten de kleuren in 16bit formaat opgemaakt worden.

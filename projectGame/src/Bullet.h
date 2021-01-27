@@ -13,8 +13,6 @@ class Bullet {
 
 private:
 
-    int damage = 10 ;
-
 public:
     bool flipped;
     void correctFlip();
